@@ -60,8 +60,11 @@
     $("character-subtitle").textContent=role.subtitle;
     $("character-story").textContent=role.story;
     $("character-tag").textContent=role.tag;
+    const portrait=$("character-portrait");
+    // Only load the portrait of the current random role, including restored sessions.
+    portrait.src=role.image;
+    portrait.alt=role.name+"的角色手繪插畫";
     const visual=document.querySelector(".character-visual");
-    // Images are intentionally deferred; each role's placeholder uses a distinct tint.
     visual.style.setProperty("--character-tint",role.colors[1]);
     visual.style.setProperty("--character-accent",role.colors[0]);
   }
@@ -235,7 +238,11 @@
       node.setAttribute("aria-current",number===state.stage?"step":"false");
     });
     if(state.stage===4)renderIntentionUI();
-    if(state.stage===5)populateCertificate();
+    if(state.stage===5){
+      populateCertificate();
+      // Eagerly fetch the two certificate decorations before students print.
+      document.querySelectorAll("#certificate img").forEach(img=>{img.loading="eager";});
+    }
     window.scrollTo({top:0,behavior:"auto"});
   }
   function begin(){
@@ -273,7 +280,12 @@
     document.querySelectorAll("[data-prev]").forEach(node=>node.addEventListener("click",()=>goBack(Number(node.dataset.prev))));
     bindIntentionChoices();
     $("intention-form").addEventListener("submit",finish);
-    $("print-certificate").addEventListener("click",()=>window.print());
+    $("print-certificate").addEventListener("click",async()=>{
+      // Ensure images that started offscreen are decoded in the A4 PDF.
+      const pictures=Array.from(document.querySelectorAll("#certificate img"));
+      await Promise.all(pictures.map(img=>img.decode?.().catch(()=>{})??Promise.resolve()));
+      window.print();
+    });
     $("back-to-vote").addEventListener("click",()=>goBack(4));
     const old=restore();
     if(old){

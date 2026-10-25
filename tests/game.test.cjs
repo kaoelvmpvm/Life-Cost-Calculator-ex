@@ -66,12 +66,79 @@ test("第五關不引入投票 iframe 或 Google 試算表資料串接",()=>{
   assert.doesNotMatch(html,/<iframe\b/i);
   assert.doesNotMatch(html,/js\/config\.js|script\.google\.com|docs\.google\.com\/spreadsheets/i);
   assert.doesNotMatch(game,/google\.script|postMessage|onCloudMessage|LIFE_COST_CLOUD_VOTE_URL|voteFrame/);
-  assert.ok(html.includes("已完成兩項個人意向選擇"));
+  assert.ok(html.includes("我的個人意向紀錄"));
+  assert.ok(html.includes('id="cert-feedback-q1"'));
+  assert.ok(html.includes('id="cert-feedback-q2"'));
 });
 test("提供 A4 列印樣式及手機版",()=>{
   const css=fs.readFileSync("css/game.css","utf8");
   assert.ok(css.includes("@page{size:A4 portrait"));
   assert.ok(css.includes("@media print"));
   assert.ok(css.includes("@media(max-width:760px)"));
+  assert.equal((css.match(/\{/g)||[]).length,(css.match(/\}/g)||[]).length);
+});
+
+test("五位角色以情境敘事交代條件，不再展示設定對照表",()=>{
+  const html=fs.readFileSync("index.html","utf8");
+  const js=fs.readFileSync("js/game.js","utf8");
+  for(const role of roles){
+    assert.ok(role.story.length>130,role.name+" 敘事情境應包含足夠的生活細節");
+    assert.ok(role.story.includes("\n\n"),role.name+" 情境應分段");
+    assert.ok(role.story.includes(String(role.settings.startAge).replace("12","十二")),role.name+" 初潮描述");
+  }
+  assert.doesNotMatch(html,/id="character-clues"|class="clue-list"|角色檔案・試算線索/);
+  assert.doesNotMatch(js,/const clueData|character-clues|\.clue-row/);
+  assert.match(html,/你的閱讀任務/);
+});
+
+test("試算僅輸出金額，角色比對及錯誤提醒只在確認通關時發生",()=>{
+  const js=fs.readFileSync("js/game.js","utf8");
+  const start=js.indexOf("  function calculate() {");
+  const end=js.indexOf("  function submitPassword(event)",start);
+  const calculation=js.slice(start,end);
+  assert.ok(start>0&&end>start);
+  assert.doesNotMatch(calculation,/matchingFields|與角色檔案不同|設定已與角色|解密成功/);
+  assert.match(calculation,/calculated-sum/);
+  const submit=js.slice(end,js.indexOf("  function renderInsight()",end));
+  assert.match(submit,/matchingFields\(values\)/);
+  assert.match(submit,/設定與故事內容不一致/);
+  assert.match(submit,/CostModel\.calculate\(values\)\.totalLifetimeCost/);
+});
+
+test("依據第五關六種選擇提供溫和、有持續關注意義的回饋",()=>{
+  const feedback=require("../js/feedback.js");
+  const html=fs.readFileSync("index.html","utf8");
+  const game=fs.readFileSync("js/game.js","utf8");
+  for(const question of ["q1","q2"]){
+    assert.ok(html.includes('id="intention-feedback-'+question+'"'));
+    assert.ok(html.includes('id="cert-feedback-'+question+'"'));
+    for(const choice of ["a","b","c"]){
+      const message=feedback.get(question,choice);
+      assert.ok(message.length>=35&&message.length<=120,question+":"+choice);
+      assert.ok(/期待|願|思考|留意|關心/.test(message),question+":"+choice);
+    }
+  }
+  assert.equal(feedback.get("q1","z"),"");
+  assert.match(game,/JingcaiFeedback\.get\(key,value\)/);
+  assert.match(game,/JingcaiFeedback\.get\("q1",state\.intentions\.q1\)/);
+  assert.ok(html.includes("./js/feedback.js"));
+});
+test("舊版技術說明、證書冗文與所有臨時圖示均已移除",()=>{
+  const html=fs.readFileSync("index.html","utf8");
+  for(const old of [
+    "以下沿用原教材兩道問題與選項",
+    "透過成本試算、議題思辨與個人意向選擇，留下專屬的學習紀錄",
+    "✓ 已完成兩項個人意向選擇",
+    "本紀錄僅保存在目前瀏覽器，沒有上傳或產生班級統計。",
+    "政策必須兼顧可近性、隱私與公平。",
+    "🧋","🍱","📱","✈️"
+  ])assert.ok(!html.includes(old),old);
+  const slots=["logo","cover","character","boba","bento","iphone","flight","certificate-mark","certificate-seal"];
+  for(const slot of slots)assert.ok(html.includes('data-image-slot="'+slot+'"'),slot);
+  assert.ok(html.includes("./css/refinement.css"));
+  const css=fs.readFileSync("css/refinement.css","utf8");
+  assert.ok(css.includes("prefers-reduced-motion"));
+  assert.ok(css.includes("@keyframes reveal-stage"));
+  assert.ok(css.includes("@media print"));
   assert.equal((css.match(/\{/g)||[]).length,(css.match(/\}/g)||[]).length);
 });

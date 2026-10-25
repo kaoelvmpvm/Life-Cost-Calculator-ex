@@ -19,15 +19,13 @@
 <body>
 <div class="site-shell">
 <header class="topbar no-print">
-  <div class="brand"><span class="brand-mark media-placeholder media-placeholder--logo" data-image-slot="logo" role="img" aria-label="教材標誌圖片預留區"></span><div><strong>經彩人生</strong><small>月經平權挑戰・高中篇</small></div></div>
+  <div class="brand"><img class="brand-mark artwork-logo" data-image-slot="logo" src="./images/logo.png" alt="經彩人生教材標誌" width="1254" height="1254" decoding="async"><div><strong>經彩人生</strong><small>月經平權挑戰・高中篇</small></div></div>
   <div class="top-actions"><span id="status-label" class="status-label">探索任務尚未開始</span><button id="reset-game" class="quiet-button" type="button" hidden>重新開始</button></div>
 </header>
 <main id="game-main" class="main-content">
   <section id="intro" class="intro-stage">
     <div class="intro-art">
-      <div class="media-placeholder media-placeholder--cover" data-image-slot="cover" role="img" aria-label="封面圖片預留區">
-        <span>封面情境圖片預留區</span>
-      </div>
+      <img class="artwork-cover" data-image-slot="cover" src="./images/cover.png" alt="兩位學生攜帶計算器與筆記本，一同探索經期與生活成本的手繪封面插畫" width="1448" height="1086" fetchpriority="high" decoding="async">
       <div class="intro-art__caption" aria-hidden="true">LIFE COST / STORY EXPERIENCE</div>
     </div>
     <div class="intro-copy">
@@ -61,7 +59,7 @@
       <div class="mission-grid">
         <aside class="character-panel">
           <div class="character-visual">
-            <div id="character-portrait" class="character-portrait media-placeholder media-placeholder--character" data-image-slot="character" role="img" aria-label="角色圖片預留區"><span>角色圖片預留區</span></div>
+            <img id="character-portrait" class="character-portrait artwork-character" data-image-slot="character" alt="隨機角色插畫" width="1086" height="1448" decoding="async">
             <span id="character-tag" class="character-tag">生活故事</span>
           </div>
           <p class="mini-overline">THE CHARACTER</p>
@@ -96,10 +94,10 @@
       <div class="insight-total"><div><span>你的角色：<strong id="insight-character"></strong></span><p>生涯總成本</p><strong id="insight-total-value">NT$ 0</strong></div><div class="insight-total-decoration" aria-hidden="true"></div></div>
       <h3 class="minor-title">這筆開銷，相當於⋯⋯</h3>
       <div class="equivalent-grid">
-        <article class="equiv-tile tile-tea"><div class="illustration-placeholder media-placeholder" data-image-slot="boba" role="img" aria-label="珍珠奶茶圖片預留區"><span>珍珠奶茶圖片</span></div><div><span>珍珠奶茶（NT$60）</span><strong><output id="life-eq-boba">0</output> <small>杯</small></strong></div></article>
-        <article class="equiv-tile tile-food"><div class="illustration-placeholder media-placeholder" data-image-slot="bento" role="img" aria-label="便當圖片預留區"><span>便當圖片</span></div><div><span>豐盛便當（NT$110）</span><strong><output id="life-eq-bento">0</output> <small>個</small></strong></div></article>
-        <article class="equiv-tile tile-phone"><div class="illustration-placeholder media-placeholder" data-image-slot="iphone" role="img" aria-label="手機圖片預留區"><span>手機圖片</span></div><div><span>旗艦款 iPhone（NT$3.2萬）</span><strong><output id="life-eq-iphone">0</output> <small>支</small></strong></div></article>
-        <article class="equiv-tile tile-flight"><div class="illustration-placeholder media-placeholder" data-image-slot="flight" role="img" aria-label="機票圖片預留區"><span>機票圖片</span></div><div><span>日本來回機票（NT$1.2萬）</span><strong><output id="life-eq-flight">0</output> <small>趟</small></strong></div></article>
+        <article class="equiv-tile tile-tea"><img class="illustration-artwork" data-image-slot="boba" src="./images/boba.png" alt="珍珠奶茶手繪插畫" width="1254" height="1254" loading="lazy" decoding="async"><div><span>珍珠奶茶（NT$60）</span><strong><output id="life-eq-boba">0</output> <small>杯</small></strong></div></article>
+        <article class="equiv-tile tile-food"><img class="illustration-artwork" data-image-slot="bento" src="./images/bento.png" alt="便當手繪插畫" width="1254" height="1254" loading="lazy" decoding="async"><div><span>豐盛便當（NT$110）</span><strong><output id="life-eq-bento">0</output> <small>個</small></strong></div></article>
+        <article class="equiv-tile tile-phone"><img class="illustration-artwork" data-image-slot="iphone" src="./images/iphone.png" alt="手機手繪插畫" width="1254" height="1254" loading="lazy" decoding="async"><div><span>旗艦款 iPhone（NT$3.2萬）</span><strong><output id="life-eq-iphone">0</output> <small>支</small></strong></div></article>
+        <article class="equiv-tile tile-flight"><img class="illustration-artwork" data-image-slot="flight" src="./images/flight.png" alt="機票手繪插畫" width="1254" height="1254" loading="lazy" decoding="async"><div><span>日本來回機票（NT$1.2萬）</span><strong><output id="life-eq-flight">0</output> <small>趟</small></strong></div></article>
       </div>
       <article class="thought-card"><div class="thought-marker">01</div><div class="thought-body"><p class="eyebrow">TOPIC · 月經貧窮與生理用品課稅</p><p class="source-prose">在許多國家，衛生棉曾被視為「非必需品」課徵營業稅（粉紅稅）。然而衛生棉是女性無法選擇的生理必需品。</p><h3>刮鬍刀與衛生紙也是日常用品，衛生棉為何需要特別提倡免費或減免稅金？兩者有何本質上的不同？</h3><label for="answer-poverty">你的思辨回答（只做紀錄，不評分）</label><textarea id="answer-poverty" rows="5" placeholder="寫下你的觀察、理由或疑問……"></textarea></div></article>
       <div class="stage-actions"><button class="button button-light" type="button" data-prev="1">返回試算</button><button id="go-policy" class="button button-primary" type="button">儲存回答，前往第四關 ↗</button></div>
@@ -147,7 +145,7 @@
       <div class="completion-banner no-print"><span>任務完成</span><h2 id="certificate-title">恭喜完成經彩人生挑戰！</h2><p>你已完成角色成本解密、議題思辨與個人選擇。這份學習成果由你親自完成。</p><div class="completion-actions"><button id="print-certificate" class="button button-primary" type="button">列印／另存 PDF 證書</button><button id="back-to-vote" class="button button-light" type="button">查看意向選擇</button></div></div>
       <article id="certificate" class="certificate">
         <div class="certificate-corner certificate-corner--tl"></div><div class="certificate-corner certificate-corner--br"></div>
-        <div class="certificate-top"><div class="certificate-mark media-placeholder media-placeholder--certificate-mark" data-image-slot="certificate-mark" role="img" aria-label="證書圖樣預留區"><span>證書圖樣</span></div><div class="certificate-caption">JINGCAI YOUTH · LEARNING JOURNEY</div><h2>經彩人生・月經平權挑戰</h2><h3>闖關學習證書</h3></div>
+        <div class="certificate-top"><img class="certificate-mark artwork-certificate-mark" data-image-slot="certificate-mark" src="./images/certificate-mark.png" alt="手繪獎章" width="1254" height="1254" loading="lazy" decoding="async"><div class="certificate-caption">JINGCAI YOUTH · LEARNING JOURNEY</div><h2>經彩人生・月經平權挑戰</h2><h3>闖關學習證書</h3></div>
         <div class="certificate-meta"><span>學生：<strong id="cert-student">自主學習者</strong></span><span>日期：<strong id="cert-date"></strong></span></div>
         <div class="certificate-hero"><div><span>我的角色｜<strong id="cert-role"></strong></span><small>生涯總開銷試算</small><strong id="cert-cost">NT$ 0</strong></div><span class="cert-approved">解密成功</span></div>
         <div class="certificate-equivalents"><h4>生活消費換算</h4><p id="cert-equivalent-line"></p></div>
@@ -159,7 +157,7 @@
         </div>
         <div class="certificate-footer">
           <div class="certificate-outlook">願你帶著理解與同理，持續關注讓每個人更自在生活的可能。</div>
-          <div class="certificate-seal media-placeholder media-placeholder--seal" data-image-slot="certificate-seal" role="img" aria-label="證書印章圖片預留區"><span>印章預留區</span></div>
+          <img class="certificate-seal artwork-certificate-seal" data-image-slot="certificate-seal" src="./images/certificate-seal.png" alt="通關 PASS 手繪印章" width="1254" height="1254" loading="lazy" decoding="async">
         </div>
         <p class="certificate-credit">經彩青春數位輔助學習教材開發團隊設計</p>
       </article>

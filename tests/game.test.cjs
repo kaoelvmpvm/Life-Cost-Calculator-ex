@@ -143,3 +143,49 @@ test("舊版技術說明、證書冗文與所有臨時圖示均已移除",()=>{
   assert.ok(css.includes("@media print"));
   assert.equal((css.match(/\{/g)||[]).length,(css.match(/\}/g)||[]).length);
 });
+
+test("13 張 GitHub 圖片均有正確檔名、PNG 格式與頁面路徑",()=>{
+  const html=fs.readFileSync("index.html","utf8");
+  const js=fs.readFileSync("js/game.js","utf8");
+  const staticImages={
+    logo:"logo.png",cover:"cover.png",
+    boba:"boba.png",bento:"bento.png",iphone:"iphone.png",flight:"flight.png",
+    "certificate-mark":"certificate-mark.png",
+    "certificate-seal":"certificate-seal.png"
+  };
+  for(const [slot,name] of Object.entries(staticImages)){
+    const tag=html.match(new RegExp('<img[^>]*data-image-slot="'+slot+'"[^>]*>'))?.[0];
+    assert.ok(tag,"缺少正式圖片元件："+slot);
+    assert.ok(tag.includes('src="./images/'+name+'"'),"圖片路徑錯誤："+name);
+    assert.ok(/alt="[^"]+"/.test(tag),"圖片缺少替代文字："+name);
+  }
+  const png=Buffer.from([137,80,78,71,13,10,26,10]);
+  for(const name of [...Object.values(staticImages),...roles.map(r=>"character-"+r.id+".png")]){
+    const path="images/"+name;
+    assert.ok(fs.existsSync(path),"缺少圖片："+path);
+    assert.ok(fs.statSync(path).size>1000,"圖片內容異常："+path);
+    assert.deepEqual(fs.readFileSync(path).subarray(0,8),png,"非 PNG 圖片："+path);
+  }
+  for(const role of roles){
+    assert.equal(role.image,"./images/character-"+role.id+".png",role.name+" 的肖像路徑");
+  }
+  assert.ok(html.includes('id="character-portrait"'));
+  assert.match(js,/portrait\.src=role\.image/);
+  assert.match(js,/portrait\.alt=role\.name/);
+  assert.match(js,/img\.decode\?\.\(\)/);
+  assert.match(js,/#certificate img/);
+});
+
+test("圖片載入不會恢復圖片預留文案或干擾既有互動",()=>{
+  const html=fs.readFileSync("index.html","utf8");
+  const css=fs.readFileSync("css/refinement.css","utf8");
+  for(const old of ["圖片預留區","印章預留區","角色圖片預留區"]){
+    assert.ok(!html.includes(old),old);
+  }
+  for(const selector of [
+    ".artwork-cover",".artwork-character",".illustration-artwork",
+    ".artwork-certificate-mark",".artwork-certificate-seal"
+  ])assert.ok(css.includes(selector),selector);
+  assert.ok(css.includes("object-fit:contain"),"透明圖片應保留完整畫面");
+  assert.ok(css.includes("object-fit:cover"),"角色圖片長寬比已配合肖像構圖");
+});

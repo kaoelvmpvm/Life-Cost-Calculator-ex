@@ -3,13 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#8d3e5d">
-<meta name="description" content="經彩人生：月經平權情境式闖關教材。從角色成本解密、思辨到班級投票及學習證書。">
+<meta name="theme-color" content="#173c48">
+<meta name="description" content="經彩人生：月經平權情境式闖關教材。從角色閱讀與成本解密、思辨到個人意向與學習證書。">
 <title>經彩人生｜月經平權挑戰</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="./css/game.css">
+<link rel="stylesheet" href="./css/refinement.css">
 <script src="./js/cost-model.js" defer></script>
 <script src="./js/roles.js" defer></script>
 <script src="./js/game.js" defer></script>
@@ -17,21 +18,22 @@
 <body>
 <div class="site-shell">
 <header class="topbar no-print">
-  <div class="brand"><span class="brand-mark" aria-hidden="true">✿</span><div><strong>經彩人生</strong><small>月經平權挑戰・高中篇</small></div></div>
+  <div class="brand"><span class="brand-mark media-placeholder media-placeholder--logo" data-image-slot="logo" role="img" aria-label="教材標誌圖片預留區"></span><div><strong>經彩人生</strong><small>月經平權挑戰・高中篇</small></div></div>
   <div class="top-actions"><span id="status-label" class="status-label">探索任務尚未開始</span><button id="reset-game" class="quiet-button" type="button" hidden>重新開始</button></div>
 </header>
 <main id="game-main" class="main-content">
   <section id="intro" class="intro-stage">
-    <div class="intro-art" aria-hidden="true">
-      <div class="scene-shape scene-shape--one"></div><div class="scene-shape scene-shape--two"></div>
-      <div class="intro-orbit">✧</div><div class="intro-envelope"><span>✦</span><div>YOUR<br>STORY</div></div>
-      <div class="intro-stamp">05<br><span>MISSIONS</span></div>
+    <div class="intro-art">
+      <div class="media-placeholder media-placeholder--cover" data-image-slot="cover" role="img" aria-label="封面圖片預留區">
+        <span>封面情境圖片預留區</span>
+      </div>
+      <div class="intro-art__caption" aria-hidden="true">LIFE COST / STORY EXPERIENCE</div>
     </div>
     <div class="intro-copy">
       <p class="eyebrow">INTERACTIVE LEARNING EXPERIENCE</p>
       <h1>每一筆開銷，<br><em>都有一段故事。</em></h1>
       <p class="intro-description">走進一位角色的生理期人生，算出她的長期開銷，再用數據與觀點，挑戰月經平權的真實議題。</p>
-      <div class="intro-features"><span>✿ 隨機角色</span><span>▦ 金額解密</span><span>◉ 個人意向</span><span>✧ 學習證書</span></div>
+      <div class="intro-features"><span>隨機角色</span><span>金額解密</span><span>個人意向</span><span>學習證書</span></div>
       <div class="identity-box">
         <label for="student-label">你的稱呼或座號（選填，僅用於學習證書）</label>
         <input id="student-label" maxlength="30" autocomplete="off" placeholder="例如：815 班 12 號">
@@ -54,23 +56,20 @@
     </nav>
 
     <section id="stage-mission" class="game-stage" aria-labelledby="mission-title">
-      <div class="stage-heading"><div><span class="eyebrow">CHAPTER 01 · COST DECODER</span><h2 id="mission-title">第一～二關｜破解角色生涯成本</h2><p>讀懂人物故事，填入情境中提供的數值，算出生涯總金額，再用這個金額解鎖下一關。</p></div><span class="stage-number">01—02</span></div>
+      <div class="stage-heading"><div><span class="eyebrow">CHAPTER 01 · COST DECODER</span><h2 id="mission-title">第一～二關｜破解角色生涯成本</h2><p>你收到一份角色的生活紀錄。請仔細閱讀，從故事中找出生理歷程、用品使用習慣與可能的支出，替她算出一生的開銷。</p></div><span class="stage-number">01—02</span></div>
       <div class="mission-grid">
         <aside class="character-panel">
           <div class="character-visual">
-            <div id="character-portrait" class="character-portrait" aria-hidden="true">
-              <span class="portrait-orbit"></span><span class="portrait-hair"></span><span class="portrait-head"><i class="portrait-eye left"></i><i class="portrait-eye right"></i><i class="portrait-mouth"></i></span><span class="portrait-body"></span>
-            </div>
-            <span id="character-tag" class="character-tag">經期故事</span>
+            <div id="character-portrait" class="character-portrait media-placeholder media-placeholder--character" data-image-slot="character" role="img" aria-label="角色圖片預留區"><span>角色圖片預留區</span></div>
+            <span id="character-tag" class="character-tag">生活故事</span>
           </div>
           <p class="mini-overline">THE CHARACTER</p>
           <h3 id="character-name">角色</h3>
           <strong id="character-subtitle" class="character-subtitle"></strong>
           <p id="character-story" class="character-story"></p>
-          <div class="clue-note">
-            <h4>角色檔案・試算線索</h4>
-            <div id="character-clues" class="clue-list"></div>
-            <p class="small-note">請依據這些設定，而不是自己的經驗填寫右側試算器。</p>
+          <div class="reading-prompt">
+            <h4>你的閱讀任務</h4>
+            <p>故事提到了哪些年齡、使用習慣與額外開銷？從敘述中自行整理數值，再把它們輸入右側的試算器。</p>
           </div>
         </aside>
         <div class="calculator-panel">
@@ -80,7 +79,7 @@
           <div id="scenario-extras" class="extras-grid"></div>
           <div class="compute-area">
             <button id="calculate-now" class="button button-secondary" type="button">計算生涯總開銷</button>
-            <div id="calculation-display" class="calculation-display" hidden><span>目前設定的試算結果</span><strong id="calculated-sum">NT$ 0</strong><small id="calculation-detail"></small></div>
+            <div id="calculation-display" class="calculation-display" hidden><span>你的生涯開銷試算</span><strong id="calculated-sum">NT$ 0</strong><small id="calculation-detail"></small></div>
           </div>
           <form id="password-form" class="password-card">
             <div><span class="eyebrow">PASSWORD TO CONTINUE</span><h4>輸入生涯總金額，解鎖下一關</h4><p>只需輸入整數，不必輸入「NT$」與逗號。</p></div>
@@ -92,40 +91,41 @@
     </section>
 
     <section id="stage-insight" class="game-stage" aria-labelledby="insight-title" hidden>
-      <div class="stage-heading"><div><span class="eyebrow">CHAPTER 02 · SEE THE HIDDEN COST</span><h2 id="insight-title">第三關｜當開銷成為負擔</h2><p>把上一關的成本換成生活中熟悉的物品，思考這些數字所代表的意義。</p></div><span class="stage-number">03</span></div>
-      <div class="insight-total"><div><span>你的角色：<strong id="insight-character"></strong></span><p>生涯總成本</p><strong id="insight-total-value">NT$ 0</strong></div><div class="insight-total-decoration" aria-hidden="true">✳</div></div>
+      <div class="stage-heading"><div><span class="eyebrow">CHAPTER 02 · SEE THE HIDDEN COST</span><h2 id="insight-title">第三關｜當開銷成為負擔</h2><p>你替角色算出了長期開銷。如果這筆錢改拿來購買日常用品，可以換到多少東西？對有不同生活條件的人，這筆支出又代表什麼？</p></div><span class="stage-number">03</span></div>
+      <div class="insight-total"><div><span>你的角色：<strong id="insight-character"></strong></span><p>生涯總成本</p><strong id="insight-total-value">NT$ 0</strong></div><div class="insight-total-decoration" aria-hidden="true"></div></div>
       <h3 class="minor-title">這筆開銷，相當於⋯⋯</h3>
       <div class="equivalent-grid">
-        <article class="equiv-tile tile-tea"><div class="illustration-emoji" aria-hidden="true">🧋</div><div><span>珍珠奶茶（NT$60）</span><strong><output id="life-eq-boba">0</output> <small>杯</small></strong></div></article>
-        <article class="equiv-tile tile-food"><div class="illustration-emoji" aria-hidden="true">🍱</div><div><span>豐盛便當（NT$110）</span><strong><output id="life-eq-bento">0</output> <small>個</small></strong></div></article>
-        <article class="equiv-tile tile-phone"><div class="illustration-emoji" aria-hidden="true">📱</div><div><span>旗艦款 iPhone（NT$3.2萬）</span><strong><output id="life-eq-iphone">0</output> <small>支</small></strong></div></article>
-        <article class="equiv-tile tile-flight"><div class="illustration-emoji" aria-hidden="true">✈️</div><div><span>日本來回機票（NT$1.2萬）</span><strong><output id="life-eq-flight">0</output> <small>趟</small></strong></div></article>
+        <article class="equiv-tile tile-tea"><div class="illustration-placeholder media-placeholder" data-image-slot="boba" role="img" aria-label="珍珠奶茶圖片預留區"><span>珍珠奶茶圖片</span></div><div><span>珍珠奶茶（NT$60）</span><strong><output id="life-eq-boba">0</output> <small>杯</small></strong></div></article>
+        <article class="equiv-tile tile-food"><div class="illustration-placeholder media-placeholder" data-image-slot="bento" role="img" aria-label="便當圖片預留區"><span>便當圖片</span></div><div><span>豐盛便當（NT$110）</span><strong><output id="life-eq-bento">0</output> <small>個</small></strong></div></article>
+        <article class="equiv-tile tile-phone"><div class="illustration-placeholder media-placeholder" data-image-slot="iphone" role="img" aria-label="手機圖片預留區"><span>手機圖片</span></div><div><span>旗艦款 iPhone（NT$3.2萬）</span><strong><output id="life-eq-iphone">0</output> <small>支</small></strong></div></article>
+        <article class="equiv-tile tile-flight"><div class="illustration-placeholder media-placeholder" data-image-slot="flight" role="img" aria-label="機票圖片預留區"><span>機票圖片</span></div><div><span>日本來回機票（NT$1.2萬）</span><strong><output id="life-eq-flight">0</output> <small>趟</small></strong></div></article>
       </div>
       <article class="thought-card"><div class="thought-marker">01</div><div class="thought-body"><p class="eyebrow">TOPIC · 月經貧窮與生理用品課稅</p><p class="source-prose">在許多國家，衛生棉曾被視為「非必需品」課徵營業稅（粉紅稅）。然而衛生棉是女性無法選擇的生理必需品。</p><h3>刮鬍刀與衛生紙也是日常用品，衛生棉為何需要特別提倡免費或減免稅金？兩者有何本質上的不同？</h3><label for="answer-poverty">你的思辨回答（只做紀錄，不評分）</label><textarea id="answer-poverty" rows="5" placeholder="寫下你的觀察、理由或疑問……"></textarea></div></article>
       <div class="stage-actions"><button class="button button-light" type="button" data-prev="1">返回試算</button><button id="go-policy" class="button button-primary" type="button">儲存回答，前往第四關 ↗</button></div>
     </section>
 
     <section id="stage-policy" class="game-stage" aria-labelledby="policy-title" hidden>
-      <div class="stage-heading"><div><span class="eyebrow">CHAPTER 03 · PUBLIC DECISIONS</span><h2 id="policy-title">第四關｜校園平權決策</h2><p>政策必須兼顧可近性、隱私與公平。請閱讀兩則情境，留下你自己的判斷。</p></div><span class="stage-number">04</span></div>
+      <div class="stage-heading"><div><span class="eyebrow">CHAPTER 03 · PUBLIC DECISIONS</span><h2 id="policy-title">第四關｜校園平權決策</h2><p>如果現在你有機會調整學校的制度，讓角色與其他學生在經期得到更友善的支持，你會如何安排生理用品的取得方式？面對生理假的困難，又會做出什麼決定？</p></div><span class="stage-number">04</span></div>
       <div class="policy-grid">
         <article class="thought-card"><div class="thought-marker">02</div><div class="thought-body"><p class="eyebrow">TOPIC · 校園免費生理用品的位置與隱私</p><p class="source-prose">教育部已推動校園友善提供生理用品。然而置放於「教官室」或「健康中心」是否會讓學生因尷尬而不敢領取？</p><h3>若你是校長，你會把免費衛生棉放在校園的哪裡？如何兼顧「方便取得」與「保護隱私」？</h3><label for="answer-location">我的回答（不評分）</label><textarea id="answer-location" rows="5" placeholder="描述你的方案與理由……"></textarea></div></article>
         <article class="thought-card"><div class="thought-marker">03</div><div class="thought-body"><p class="eyebrow">TOPIC · 生理假：形式平等 vs. 實質平等</p><p class="source-prose">生理假不需證明文件，但也面臨「被質疑假打卡」或「遇到段考無法補考打折」等實質困境。</p><h3>給予特定群體合理的特別考量（Reasonable Accommodation）是特權還是平權？</h3><label for="answer-leave">我的回答（不評分）</label><textarea id="answer-leave" rows="5" placeholder="說明你的觀點與思考……"></textarea></div></article>
       </div>
-      <div class="stage-actions"><button class="button button-light" type="button" data-prev="2">返回第三關</button><button id="go-vote" class="button button-primary" type="button">儲存觀點，進入課堂投票 ↗</button></div>
+      <div class="stage-actions"><button class="button button-light" type="button" data-prev="2">返回第三關</button><button id="go-vote" class="button button-primary" type="button">儲存觀點，提出我的選擇 ↗</button></div>
     </section>
 
     <section id="stage-vote" class="game-stage" aria-labelledby="vote-title" hidden>
-      <div class="stage-heading"><div><span class="eyebrow">CHAPTER 04 · YOUR OWN PERSPECTIVE</span><h2 id="vote-title">第五關｜經彩平權倡議者</h2><p>根據前面的思辨，選出你的意向。這裡沒有對錯或全班票數統計，只保存你自己的選擇，並將它帶入學習證書。</p></div><span class="stage-number">05</span></div>
-      <div class="vote-explainer intention-intro"><div class="vote-bubble" aria-hidden="true">◉</div><div><h3>尊重不同觀點，留下自己的選擇</h3><p>以下沿用原教材兩道問題與選項，請各選擇一項；系統不評分，也不會傳送到 Google 試算表。完成後可在證書看到兩題意向紀錄。</p></div></div>
+      <div class="stage-heading"><div><span class="eyebrow">CHAPTER 04 · YOUR OWN PERSPECTIVE</span><h2 id="vote-title">第五關｜經彩平權倡議者</h2><p>一路陪伴角色認識了經期需求，也思考過校園政策。現在輪到你做決定：面對真實生活中的月經議題，你會如何選擇？</p></div><span class="stage-number">05</span></div>
+      <div class="decision-prompt">沒有唯一正確的立場。請依你的理解，做出自己的選擇。</div>
       <form id="intention-form" class="intention-form" autocomplete="off">
         <fieldset class="intention-question" id="intention-q1">
           <legend><span class="intention-question__index">Q1</span>你或你身邊的同學，曾有過「因為衛生棉不夠/省錢而減少更換頻率」的經驗嗎？</legend>
-          <p class="intention-question__note">題目涉及個人或身邊同學的經驗，請依實際了解程度選擇；答案會出現在自己的學習證書，分享證書時請留意隱私。</p>
+          <p class="intention-question__note">依你了解的情況作答即可；這項選擇會記在個人證書上，分享時請尊重自己與他人的隱私。</p>
           <div class="intention-options">
             <label class="intention-option"><input type="radio" name="intention-q1" value="a" required><span class="intention-option__letter">A</span><span class="intention-option__label">經常或偶爾會有這種情況</span><span class="intention-option__check" aria-hidden="true">✓</span></label>
             <label class="intention-option"><input type="radio" name="intention-q1" value="b"><span class="intention-option__letter">B</span><span class="intention-option__label">從來沒有，補給都很充裕</span><span class="intention-option__check" aria-hidden="true">✓</span></label>
             <label class="intention-option"><input type="radio" name="intention-q1" value="c"><span class="intention-option__letter">C</span><span class="intention-option__label">不清楚 / 沒注意過</span><span class="intention-option__check" aria-hidden="true">✓</span></label>
           </div>
+          <div id="intention-feedback-q1" class="intention-feedback" aria-live="polite" hidden></div>
         </fieldset>
         <fieldset class="intention-question" id="intention-q2">
           <legend><span class="intention-question__index">Q2</span>你認為學校提供免費衛生棉，放置在哪裡最合適？</legend>
@@ -135,27 +135,31 @@
             <label class="intention-option"><input type="radio" name="intention-q2" value="b"><span class="intention-option__letter">B</span><span class="intention-option__label">健康中心 / 保健室</span><span class="intention-option__check" aria-hidden="true">✓</span></label>
             <label class="intention-option"><input type="radio" name="intention-q2" value="c"><span class="intention-option__letter">C</span><span class="intention-option__label">班級導師櫃或教官室</span><span class="intention-option__check" aria-hidden="true">✓</span></label>
           </div>
+          <div id="intention-feedback-q2" class="intention-feedback" aria-live="polite" hidden></div>
         </fieldset>
-        <div class="intention-footer"><p><span aria-hidden="true">✦</span> 此區純粹記錄你的個人意向，不上傳、不比較其他同學的答案。</p><p id="vote-status" class="form-feedback" role="status" aria-live="polite">請完成兩題選擇。</p></div>
+        <div class="intention-footer"><p id="vote-status" class="form-feedback" role="status" aria-live="polite">請完成兩題選擇。</p></div>
         <div class="stage-actions"><button class="button button-light" type="button" data-prev="3">返回第四關</button><button id="finish-game" class="button button-primary" type="submit" disabled>記錄我的意向・領取學習證書 ↗</button></div>
       </form>
     </section>
 
     <section id="stage-certificate" class="game-stage" aria-labelledby="certificate-title" hidden>
-      <div class="completion-banner no-print"><span>✧ 任務完成</span><h2 id="certificate-title">恭喜完成經彩人生挑戰！</h2><p>這張證書記錄了你的角色試算、三項思辨回答與兩項個人意向選擇。</p><div class="completion-actions"><button id="print-certificate" class="button button-primary" type="button">列印／另存 PDF 證書</button><button id="back-to-vote" class="button button-light" type="button">查看投票關卡</button></div></div>
+      <div class="completion-banner no-print"><span>任務完成</span><h2 id="certificate-title">恭喜完成經彩人生挑戰！</h2><p>你已完成角色成本解密、議題思辨與個人選擇。這份學習成果由你親自完成。</p><div class="completion-actions"><button id="print-certificate" class="button button-primary" type="button">列印／另存 PDF 證書</button><button id="back-to-vote" class="button button-light" type="button">查看意向選擇</button></div></div>
       <article id="certificate" class="certificate">
         <div class="certificate-corner certificate-corner--tl"></div><div class="certificate-corner certificate-corner--br"></div>
-        <div class="certificate-top"><div class="certificate-mark">✿</div><div class="certificate-caption">JINGCAI YOUTH · LEARNING JOURNEY</div><h2>經彩人生・月經平權挑戰</h2><h3>闖關學習證書</h3><p>透過成本試算、議題思辨與個人意向選擇，留下專屬的學習紀錄</p></div>
+        <div class="certificate-top"><div class="certificate-mark media-placeholder media-placeholder--certificate-mark" data-image-slot="certificate-mark" role="img" aria-label="證書圖樣預留區"><span>證書圖樣</span></div><div class="certificate-caption">JINGCAI YOUTH · LEARNING JOURNEY</div><h2>經彩人生・月經平權挑戰</h2><h3>闖關學習證書</h3></div>
         <div class="certificate-meta"><span>學生：<strong id="cert-student">自主學習者</strong></span><span>日期：<strong id="cert-date"></strong></span></div>
-        <div class="certificate-hero"><div><span>我的角色｜<strong id="cert-role"></strong></span><small>生涯總開銷試算</small><strong id="cert-cost">NT$ 0</strong></div><span class="cert-approved">✓ 解密成功</span></div>
+        <div class="certificate-hero"><div><span>我的角色｜<strong id="cert-role"></strong></span><small>生涯總開銷試算</small><strong id="cert-cost">NT$ 0</strong></div><span class="cert-approved">解密成功</span></div>
         <div class="certificate-equivalents"><h4>生活消費換算</h4><p id="cert-equivalent-line"></p></div>
         <div class="certificate-answers"><h4>我的議題思辨紀錄</h4><div class="cert-answer"><strong>① 月經貧窮與生理用品課稅</strong><p id="cert-poverty"></p></div><div class="cert-answer"><strong>② 校園免費生理用品與隱私</strong><p id="cert-location"></p></div><div class="cert-answer"><strong>③ 生理假與實質平等</strong><p id="cert-leave"></p></div></div>
         <div class="certificate-intentions">
           <h4>第五關｜我的個人意向紀錄</h4>
-          <div class="cert-intention"><strong>① 生理用品使用經驗</strong><p id="cert-vote-q1"></p></div>
-          <div class="cert-intention"><strong>② 校園免費衛生棉設置位置</strong><p id="cert-vote-q2"></p></div>
+          <div class="cert-intention"><strong>① 生理用品使用經驗</strong><p id="cert-vote-q1"></p><p id="cert-feedback-q1" class="cert-feedback"></p></div>
+          <div class="cert-intention"><strong>② 校園免費衛生棉設置位置</strong><p id="cert-vote-q2"></p><p id="cert-feedback-q2" class="cert-feedback"></p></div>
         </div>
-        <div class="certificate-footer"><div><strong>✓ 已完成兩項個人意向選擇</strong><small>本紀錄僅保存在目前瀏覽器，沒有上傳或產生班級統計。</small></div><div class="certificate-seal">經彩<br>PASS</div></div>
+        <div class="certificate-footer">
+          <div class="certificate-outlook">願你帶著理解與同理，持續關注讓每個人更自在生活的可能。</div>
+          <div class="certificate-seal media-placeholder media-placeholder--seal" data-image-slot="certificate-seal" role="img" aria-label="證書印章圖片預留區"><span>印章預留區</span></div>
+        </div>
         <p class="certificate-credit">經彩青春數位輔助學習教材開發團隊設計</p>
       </article>
     </section>

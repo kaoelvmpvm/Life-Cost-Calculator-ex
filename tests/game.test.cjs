@@ -189,3 +189,26 @@ test("圖片載入不會恢復圖片預留文案或干擾既有互動",()=>{
   assert.ok(css.includes("object-fit:contain"),"透明圖片應保留完整畫面");
   assert.ok(css.includes("object-fit:cover"),"角色圖片長寬比已配合肖像構圖");
 });
+
+test("五位角色均能由每日作息與更換頻率推算出用量，且夜用比例可由購買紀錄得出",()=>{
+  const schedules={
+    ziqing:{hours:12,interval:3,extra:2,night:3,of:10,age:12,stop:50,clues:["幾乎每次都需要買止痛藥","準備暖暖包"]},
+    xinyu:{hours:12,interval:4,extra:1,night:1,of:4,age:13,stop:49,clues:["沒有痛到需要買止痛藥","準備暖暖包","另外買經期專用洗劑"]},
+    yuan:{hours:15,interval:3,extra:2,night:4,of:10,age:11,stop:51,clues:["不需要特別買止痛藥或暖暖包","另外買清洗用品","補品與鐵質補充劑"]},
+    ruoting:{hours:12,interval:3,extra:1,night:1,of:5,age:14,stop:52,clues:["止痛藥和暖暖包","替換內褲","補品或鐵質補充劑"]},
+    lecheng:{hours:12,interval:3,extra:1,night:7,of:20,age:12,stop:48,clues:["幾乎每次月經都需要買止痛藥","不會購買暖暖包","不另買替換內褲"]}
+  };
+  for(const role of roles){
+    const spec=schedules[role.id];
+    assert.ok(spec,role.id);
+    assert.equal(spec.hours/spec.interval+spec.extra,role.settings.padsPerDay,role.name+" 每日衛生棉推算");
+    assert.equal(spec.night/spec.of*100,role.settings.nightRatio,role.name+" 夜用比例推算");
+    assert.ok(role.story.includes(spec.age+" 歲初潮"),role.name+" 初潮年齡應一眼可見");
+    assert.ok(role.story.includes(spec.stop+" 歲停經"),role.name+" 停經年齡應一眼可見");
+    assert.ok(role.story.includes(spec.hours+" 小時"),role.name+" 作息線索");
+    assert.ok(role.story.includes("每 "+spec.interval+" 小時"),role.name+" 更換頻率線索");
+    for(const clue of spec.clues)assert.ok(role.story.includes(clue),role.name+" 情境需求: "+clue);
+    assert.doesNotMatch(role.story,/(?:每天|一天)(?:大約|約|會|要|使用|需要|平均|會用掉|就)?(?:\s|大約|約){0,4}\d+\s*片衛生棉/,role.name+" 不直接揭露每日片數");
+  }
+  assert.match(fs.readFileSync("index.html","utf8"),/多久更換一次/);
+});

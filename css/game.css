@@ -164,3 +164,108 @@ html,body{background:white!important;color:#29232b!important;-webkit-print-color
 .certificate-footer{padding-top:9px}.certificate-seal{width:52px;height:52px;font-size:12px}
 .certificate-credit{margin-top:8px}
 }
+
+/* 第五關 v2 — 個人意向選擇，不連線、不排名 */
+.intention-form { display:grid;gap:20px; }
+.intention-intro { margin-bottom:0; }
+.intention-question {
+  display:block; min-width:0; background:#fff;
+  border:1px solid #eee2e5; border-radius:24px;
+  padding:26px clamp(18px,3vw,32px) 25px;
+  box-shadow:var(--shadow);
+}
+.intention-question legend {
+  display:block; width:100%; padding:0 0 8px;
+  font-size:clamp(16px,2vw,20px);font-weight:850;
+  color:#423644;line-height:1.7;
+}
+.intention-question__index {
+  display:inline-grid;place-items:center;
+  background:#fae8ee;color:#a13a60;border-radius:12px;
+  min-width:46px;height:38px;padding:0 6px;
+  margin-right:13px;font:800 17px "Outfit",sans-serif;
+}
+.intention-question__note {
+  font-size:13px;line-height:1.85;color:#81717c;
+  margin:0 0 18px;
+}
+.intention-options {
+  display:grid;gap:11px;
+}
+.intention-option {
+  position:relative;
+  display:flex;align-items:center;gap:15px;
+  padding:15px 17px;
+  border:1px solid #e9e0e4;
+  background:#fdfbfa;
+  border-radius:15px;
+  min-height:66px;
+  cursor:pointer;
+  transition:background .16s ease,border-color .16s ease,transform .16s ease,box-shadow .16s ease;
+}
+.intention-option:hover {border-color:#dca3ba;transform:translateY(-1px);}
+.intention-option:has(input:checked) {
+  background:linear-gradient(112deg,#fff1f5,#fffaf9);
+  border-color:#c56b8a;
+  box-shadow:0 7px 20px -17px rgba(143,44,87,.4);
+}
+.intention-option:focus-within {outline:3px solid #117a7a;outline-offset:2px;}
+.intention-option input {
+  width:21px;height:21px;
+  accent-color:#9d395f;flex:0 0 auto;
+  margin:0;
+}
+.intention-option__letter {
+  display:grid;place-items:center;
+  width:32px;height:32px;border-radius:10px;
+  background:white;border:1px solid #e8dce1;
+  font:800 13px "Outfit",sans-serif;
+  color:#966c7c;flex:0 0 auto;
+}
+.intention-option:has(input:checked) .intention-option__letter {
+  color:#a33e63;border-color:#e7b4c7;background:#fce0e9;
+}
+.intention-option__label {
+  color:#4d424f;font-size:15px;line-height:1.6;
+  font-weight:650;flex:1;min-width:0;
+}
+.intention-option__check {
+  font-size:16px;font-weight:900;color:#237c6d;opacity:0;
+}
+.intention-option:has(input:checked) .intention-option__check {opacity:1}
+.intention-footer {
+  display:flex;flex-direction:column;gap:4px;
+  padding:10px 3px 0;
+}
+.intention-footer>p:first-child {font-size:13px;color:#856c78;margin:0}
+.intention-footer .form-feedback {margin:2px 0 0}
+.certificate-intentions {
+  background:#fff7f9;border:1px solid #f0dce4;
+  border-radius:14px;padding:14px 17px;
+  margin:2px 0 9px;
+}
+.certificate-intentions>h4 {
+  font-size:14px;color:#854361;margin:0 0 8px;font-weight:850;
+}
+.cert-intention {display:grid;gap:2px;padding:7px 0}
+.cert-intention+.cert-intention {border-top:1px dashed #e9cbd7}
+.cert-intention strong {font-size:12px;color:#85516a}
+.cert-intention p {
+  font-size:13px;line-height:1.65;color:#493c48;
+  margin:0;overflow-wrap:anywhere;white-space:pre-wrap;
+}
+@media(max-width:760px) {
+  .intention-question {padding:20px 16px;border-radius:20px}
+  .intention-question__index {margin-right:8px}
+  .intention-option {padding:12px;gap:9px}
+  .intention-option__letter {width:28px;height:28px}
+  .intention-option__label {font-size:13px}
+}
+@media print {
+  #stage-vote,.intention-form,.intention-intro {display:none!important}
+  .certificate-intentions {padding:7px 10px;margin:6px 0}
+  .certificate-intentions>h4 {font-size:10pt;margin-bottom:2px}
+  .cert-intention {padding:3px 0;break-inside:avoid}
+  .cert-intention strong {font-size:9pt}
+  .cert-intention p {font-size:9.3pt;line-height:1.45}
+}

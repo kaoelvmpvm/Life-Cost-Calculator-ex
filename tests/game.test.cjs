@@ -190,25 +190,45 @@ test("圖片載入不會恢復圖片預留文案或干擾既有互動",()=>{
   assert.ok(css.includes("object-fit:cover"),"角色圖片長寬比已配合肖像構圖");
 });
 
-test("五位角色均能由每日作息與更換頻率推算出用量，且夜用比例可由購買紀錄得出",()=>{
-  const schedules={
-    ziqing:{hours:12,interval:3,extra:2,night:3,of:10,age:12,stop:50,clues:["幾乎每次都需要買止痛藥","準備暖暖包"]},
-    xinyu:{hours:12,interval:4,extra:1,night:1,of:4,age:13,stop:49,clues:["沒有痛到需要買止痛藥","準備暖暖包","另外買經期專用洗劑"]},
-    yuan:{hours:15,interval:3,extra:2,night:4,of:10,age:11,stop:51,clues:["不需要特別買止痛藥或暖暖包","另外買清洗用品","補品與鐵質補充劑"]},
-    ruoting:{hours:12,interval:3,extra:1,night:1,of:5,age:14,stop:52,clues:["止痛藥和暖暖包","替換內褲","補品或鐵質補充劑"]},
-    lecheng:{hours:12,interval:3,extra:1,night:7,of:20,age:12,stop:48,clues:["幾乎每次月經都需要買止痛藥","不會購買暖暖包","不另買替換內褲"]}
+test("五位角色維持原設定，閱讀負擔合理，作息線索有單一對應",()=>{
+  const profiles={
+    ziqing:{pads:6,night:30,age:12,end:50,days:7,dayPrice:5,nightPrice:9,kind:"中等",
+      daily:"上學前先換一片，上午下課、午餐、下午下課、晚餐後各換一片，睡前再換一片",
+      nightClue:"夜用款約占三成",positive:["止痛藥","暖暖包"],negative:["沒有另外購買專用洗劑或替換內褲","不買營養補充品"]},
+    xinyu:{pads:4,night:25,age:13,end:49,days:5,dayPrice:4,nightPrice:8,kind:"容易",
+      daily:"早上出門前換一片，午餐時換一片，傍晚回家再換一片，睡前換成夜用款",
+      nightClue:"睡前換成夜用款",positive:["暖暖包","每次經期都會預留購買清潔用品的費用"],negative:["沒有另外買止痛藥","沒有額外購買營養補充品"]},
+    yuan:{pads:7,night:40,age:11,end:51,days:6,dayPrice:6,nightPrice:12,kind:"中等",
+      daily:"從起床到傍晚大約會用到五片，晚餐後和睡前又各換一片",
+      nightClue:"每 10 片約有 4 片是夜用款",positive:["另外添購清潔用品","每個月固定購買"],negative:["沒有另外買止痛藥或暖暖包"]},
+    ruoting:{pads:5,night:20,age:14,end:52,days:5,dayPrice:8,nightPrice:13,kind:"容易",
+      daily:"早上出門前一片，午餐時、放學前、晚餐後再各換一片，睡前換成夜用款",
+      nightClue:"睡前才換夜用款",positive:["止痛藥","暖暖包","專用洗劑","營養補充品"],negative:[]},
+    lecheng:{pads:5,night:35,age:12,end:48,days:4,dayPrice:5,nightPrice:10,kind:"中等",
+      daily:"早上出門先換一片，上午下課、下午下課、晚餐後和睡前，再各換一片",
+      nightClue:"夜用款約占三成半",positive:["止痛藥"],negative:["沒有另外購買"]}
   };
+  assert.deepEqual(roles.map(r=>r.id),Object.keys(profiles));
   for(const role of roles){
-    const spec=schedules[role.id];
-    assert.ok(spec,role.id);
-    assert.equal(spec.hours/spec.interval+spec.extra,role.settings.padsPerDay,role.name+" 每日衛生棉推算");
-    assert.equal(spec.night/spec.of*100,role.settings.nightRatio,role.name+" 夜用比例推算");
-    assert.ok(role.story.includes(spec.age+" 歲初潮"),role.name+" 初潮年齡應一眼可見");
-    assert.ok(role.story.includes(spec.stop+" 歲停經"),role.name+" 停經年齡應一眼可見");
-    assert.ok(role.story.includes(spec.hours+" 小時"),role.name+" 作息線索");
-    assert.ok(role.story.includes("每 "+spec.interval+" 小時"),role.name+" 更換頻率線索");
-    for(const clue of spec.clues)assert.ok(role.story.includes(clue),role.name+" 情境需求: "+clue);
-    assert.doesNotMatch(role.story,/(?:每天|一天)(?:大約|約|會|要|使用|需要|平均|會用掉|就)?(?:\s|大約|約){0,4}\d+\s*片衛生棉/,role.name+" 不直接揭露每日片數");
+    const p=profiles[role.id];
+    const s=role.story;
+    assert.equal(role.settings.padsPerDay,p.pads,role.name+" 使用片數不應被改寫");
+    assert.equal(role.settings.nightRatio,p.night,role.name+" 夜用比例不應被改寫");
+    assert.ok(s.includes(p.age+" 歲初潮"),role.name+" 初潮年齡直接呈現");
+    assert.ok(s.includes(p.end+" 歲停經"),role.name+" 停經年齡直接呈現");
+    assert.ok(s.includes("經期約 "+p.days+" 天"),role.name+" 經期天數直接呈現");
+    assert.ok(s.includes("每片 "+p.dayPrice+" 元")||s.includes("日用每片 "+p.dayPrice+" 元"),role.name+" 日用單價直接呈現");
+    assert.ok(s.includes("每片 "+p.nightPrice+" 元"),role.name+" 夜用單價直接呈現");
+    assert.ok(s.includes(p.daily),role.name+" 片數應由簡單生活作息得出");
+    assert.ok(s.includes(p.nightClue),role.name+" 夜用比例線索明確");
+    for(const line of [...p.positive,...p.negative])assert.ok(s.includes(line),role.name+" 額外需求線索："+line);
+    assert.ok(s.length>=140&&s.length<=250,role.name+" 情境應簡短，不變閱讀考試");
+    assert.equal(s.split("\n\n").length,3,role.name+" 限三段：歷程、用品、需求");
+    assert.doesNotMatch(s,/每 [2345] 小時|這 \d+ 小時|白天大約有 \d+ 小時/,role.name+" 不安排精細計時算術");
+    assert.doesNotMatch(s,/(?:每天|一天)\s*(?:大約|約)?\s*[4-7]\s*片/,role.name+" 不直接提供片數答案");
+    assert.ok(["容易","中等"].includes(p.kind));
   }
-  assert.match(fs.readFileSync("index.html","utf8"),/多久更換一次/);
+  const html=fs.readFileSync("index.html","utf8");
+  assert.match(html,/不必逐小時換算/);
+  assert.match(html,/實際更換仍應依經血量與使用需求調整/);
 });

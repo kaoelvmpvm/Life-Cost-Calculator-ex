@@ -34,12 +34,19 @@ node --test tests/*.test.cjs
 - `js/roles.js`：五位虛構角色與參數。
 - `js/game.js`：計算密碼驗證、文字紀錄、個人意向保存與證書列印。
 - `js/feedback.js`：第五關六種意向的對應鼓勵回饋。
-- `css/refinement.css`：低飽和深藍綠／暖杏配色、過場動態、響應式圖片預留區。
+- `css/refinement.css`：低飽和深藍綠／暖杏配色、過場動態、響應式圖片呈現與列印尺寸。
 - `tests/game.test.cjs`：回歸測試。
 
-## 視覺資產預留
+## 圖片整合（已完成）
 
-封面、教材標誌、五位角色、珍珠奶茶、便當、手機、機票及證書圖樣與印章均僅保留圖片插槽；**沒有生成或插入臨時圖像**。正式插圖完成後再置入，插槽標示以 `data-image-slot` 區分。頁面加入輕量動態，並遵守瀏覽器的減少動態效果設定。
+所有 **13 張**手繪 PNG 插畫已放入 `images/`，網站使用相對路徑 `./images/` 載入：
+
+- 首頁：`logo.png`、`cover.png`
+- 五位隨機角色：`character-ziqing.png`、`character-xinyu.png`、`character-yuan.png`、`character-ruoting.png`、`character-lecheng.png`
+- 第三關生活換算：`boba.png`、`bento.png`、`iphone.png`、`flight.png`
+- 證書：`certificate-mark.png`、`certificate-seal.png`
+
+固定圖片由 `index.html` 載入；隨機角色透過 `js/roles.js` 的 `image` 欄位及 `js/game.js` 顯示，重新整理後仍跟隨原本角色。PNG 透明部分保留，手機與桌面使用對應版型，證書列印前會確認圖片載入。沒有修改任何試算公式或闖關條件。
 
 ## GitHub Pages
 

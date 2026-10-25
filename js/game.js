@@ -1,6 +1,6 @@
 /* 經彩人生闖關引擎。
-   通關條件由程式驗算；思辨回答不由 AI 評分。
-   舊版 Apps Script 不會回傳跨網域完成訊號，因此提供明確標示的自行確認備援。 */
+   前四關沿用原教材與計算公式；第五關只保存個人意向，不使用雲端投票。
+   選擇與反思記錄均只保存在目前瀏覽器分頁。 */
 (() => {
   "use strict";
   const $ = id => document.getElementById(id);
@@ -9,24 +9,14 @@
   const roleBook = JingcaiRoles.roles;
   const fields = JingcaiRoles.fields;
   const extras = JingcaiRoles.extras;
-  const cloud = window.LIFE_COST_CLOUD_VOTE_URL || "";
   const emptyAnswers = {poverty:"",location:"",leave:""};
   const allowedStages = [1,2,3,4,5];
   let state = null;
-  let voteBridgeNonce = null;
-  let voteFrameInitialized = false;
   const roleById = id => roleBook.find(x=>x.id===id);
   const roleResult = () => CostModel.calculate(roleById(state.roleId).settings);
   const safelyGet = () => {try{return sessionStorage.getItem(SESSION_KEY)}catch{return null}};
   const safelyPut = value => {try{sessionStorage.setItem(SESSION_KEY,JSON.stringify(value))}catch{}};
   const safelyRemove = () => {try{sessionStorage.removeItem(SESSION_KEY)}catch{}};
-  const random = length => {
-    const data = new Uint8Array(length);
-    if (typeof crypto!=="undefined" && crypto.getRandomValues) crypto.getRandomValues(data);
-    else for(let i=0;i<length;i++)data[i]=Math.floor(Math.random()*256);
-    return [...data].map(x=>x.toString(16).padStart(2,"0")).join("");
-  };
-
   function chooseRole() {
     if(typeof crypto!=="undefined"&&crypto.getRandomValues){
       const n=new Uint32Array(1);
@@ -40,21 +30,23 @@
   function restore() {
     try {
       const raw = JSON.parse(safelyGet() || "null");
-      if(!raw || raw.version!==1 || !roleById(raw.roleId) || !allowedStages.includes(raw.stage)
+      if(!raw || ![1,2].includes(raw.version) || !roleById(raw.roleId) || !allowedStages.includes(raw.stage)
         || !allowedStages.includes(raw.maxStage))return null;
       const normalized = {
-        version:1, roleId:raw.roleId, student:String(raw.student||"").slice(0,30),
+        version:2, roleId:raw.roleId, student:String(raw.student||"").slice(0,30),
         stage:raw.stage, maxStage:raw.maxStage,
         answers:{
           poverty:String(raw.answers?.poverty||"").slice(0,5000),
           location:String(raw.answers?.location||"").slice(0,5000),
           leave:String(raw.answers?.leave||"").slice(0,5000)
         },
-        manualVote: Boolean(raw.manualVote), voteQ1: Boolean(raw.voteQ1||raw.manualVote), voteQ2: Boolean(raw.voteQ2||raw.manualVote), verifiedVote: Boolean(raw.verifiedVote),
-        roomCode: String(raw.roomCode||"").slice(0,6), completed: Boolean(raw.completed),
-        successfulConfig: Boolean(raw.successfulConfig)
+        intentions:{
+          q1:["a","b","c"].includes(raw.intentions?.q1) ? raw.intentions.q1 : "",
+          q2:["a","b","c"].includes(raw.intentions?.q2) ? raw.intentions.q2 : ""
+        },
+        completed: Boolean(raw.completed), successfulConfig: Boolean(raw.successfulConfig)
       };
-      if(normalized.stage===5 && !normalized.completed) normalized.stage=4;
+      if(normalized.stage===5 && (!normalized.completed || !normalized.intentions.q1 || !normalized.intentions.q2)) normalized.stage=4;
       return normalized;
     } catch { return null; }
   }
@@ -181,49 +173,39 @@
     if(incomplete){window.alert("請先完成本關的思辨回答。這些文字只會被保存，不會進行對錯評分。");return false;}
     return true;
   }
-  function resetVoteProof() {
-    voteBridgeNonce=random(12);
-    voteFrameInitialized=false;
-    const url=cloud.trim();
-    if(url){
-      const composed=url+(url.includes("?")?"&":"?")+"bridgeNonce="+encodeURIComponent(voteBridgeNonce);
-      $("vote-frame").src=composed;
-      $("vote-external").href=url;
-      voteFrameInitialized=true;
-    } else {
-      $("vote-frame").hidden=true;
-      $("vote-external").hidden=true;
-      showFeedback("vote-status","投票服務尚未設定，請先由教師設定雲端投票網址。","error");
+  // These answers are personal intentions, not an anonymous class poll.
+  const intentionValues = new Set(["a","b","c"]);
+  function bindIntentionChoices() {
+    for (const key of ["q1","q2"]) {
+      document.querySelectorAll('input[name="intention-'+key+'"]').forEach(radio=>{
+        radio.addEventListener("change",()=>{
+          if (!state || !radio.checked) return;
+          state.intentions[key]=intentionValues.has(radio.value) ? radio.value : "";
+          save();
+          renderIntentionUI();
+        });
+      });
     }
   }
-  function onCloudMessage(event) {
-    // Apps Script HtmlService may be served from script.googleusercontent.com.
-    if(!/^https:\/\/(?:script\.google\.com|(?:[a-z0-9-]+\.)*googleusercontent\.com)$/.test(event.origin))return;
-    const data=event.data;
-    if(!data||data.type!=="JINGCAI_CLOUD_VOTE_COMPLETE"||data.version!==1)return;
-    if(!voteBridgeNonce||data.nonce!==voteBridgeNonce)return;
-    if(data.bothVoted!==true||!/^([A-F0-9]{6})$/.test(String(data.roomCode||"")))return;
-    if(!state||state.stage<4)return;
-    state.verifiedVote=true;
-    state.roomCode=data.roomCode;
-    save();updateVoteUI();
+  function renderIntentionUI() {
+    if (!state) return;
+    for (const key of ["q1","q2"]) {
+      const value=state.intentions[key];
+      document.querySelectorAll('input[name="intention-'+key+'"]').forEach(radio=>{
+        radio.checked=(radio.value===value);
+      });
+    }
+    const complete=Boolean(state.intentions.q1&&state.intentions.q2);
+    $("finish-game").disabled=!complete;
+    showFeedback("vote-status",complete
+      ? "兩項選擇已紀錄，現在可以領取學習證書。"
+      : "請在兩道題目各選擇一項。",complete ? "ok" : "");
   }
-  function updateVoteUI() {
-    if(!state)return;
-    $("vote-verified-box").hidden=!state.verifiedVote;
-    $("vote-manual-box").hidden=state.verifiedVote;
-    $("vote-q1-check").checked=state.voteQ1 || state.verifiedVote;
-    $("vote-q2-check").checked=state.voteQ2 || state.verifiedVote;
-    if(state.verifiedVote)showFeedback("vote-status","已收到兩題完成通知，可以領取學習證書。","ok");
-    else if(state.manualVote)showFeedback("vote-status","已紀錄為學生自行確認完成（非雲端驗證）。","ok");
-    else showFeedback("vote-status","請先完成兩題投票，再由系統偵測或自行確認。");
-    $("finish-game").disabled=!(state.manualVote||state.verifiedVote);
-  }
-  function updateManual() {
-    state.voteQ1=$("vote-q1-check").checked;
-    state.voteQ2=$("vote-q2-check").checked;
-    state.manualVote=state.voteQ1&&state.voteQ2;
-    save();updateVoteUI();
+  function selectedIntentionText(key) {
+    const value=state?.intentions?.[key];
+    if(!intentionValues.has(value)) return "尚未選擇";
+    const radio=document.querySelector('input[name="intention-'+key+'"][value="'+value+'"]');
+    return radio?.closest("label")?.querySelector(".intention-option__label")?.textContent?.trim() || "尚未選擇";
   }
   function populateCertificate() {
     const r=roleResult(),role=roleById(state.roleId);
@@ -236,7 +218,8 @@
     $("cert-poverty").textContent=state.answers.poverty;
     $("cert-location").textContent=state.answers.location;
     $("cert-leave").textContent=state.answers.leave;
-    $("cert-vote-method").textContent=state.verifiedVote?"Google 投票頁回報兩題已完成":"由學生自行確認已完成兩題（非雲端驗證）";
+    $("cert-vote-q1").textContent=selectedIntentionText("q1");
+    $("cert-vote-q2").textContent=selectedIntentionText("q2");
   }
   function advance(to){
     if(!state||!allowedStages.includes(to))return;
@@ -248,7 +231,7 @@
     $("game-workspace").hidden=false;
     $("reset-game").hidden=false;
     const stageId={1:"stage-mission",2:"stage-insight",3:"stage-policy",4:"stage-vote",5:"stage-certificate"};
-    const titles={1:"第一～二關・角色成本解密",2:"第三關・數據思辨",3:"第四關・政策思辨",4:"第五關・課堂投票",5:"完成挑戰・學習證書"};
+    const titles={1:"第一～二關・角色成本解密",2:"第三關・數據思辨",3:"第四關・政策思辨",4:"第五關・個人意向",5:"完成挑戰・學習證書"};
     for(const key of allowedStages)$(stageId[key]).hidden=state.stage!==key;
     $("journey-title").textContent=titles[state.stage];
     $("status-label").textContent=state.stage===5?"已完成學習挑戰":"闖關中・"+titles[state.stage];
@@ -258,17 +241,14 @@
       node.classList.toggle("done",number<state.stage||number<state.maxStage);
       node.setAttribute("aria-current",number===state.stage?"step":"false");
     });
-    if(state.stage===4){
-      if(!voteFrameInitialized)resetVoteProof();
-      updateVoteUI();
-    }
+    if(state.stage===4)renderIntentionUI();
     if(state.stage===5)populateCertificate();
     window.scrollTo({top:0,behavior:"auto"});
   }
   function begin(){
     const role=chooseRole();
     state={version:1,roleId:role.id,student:$("student-label").value.trim().slice(0,30),
-      stage:1,maxStage:1,answers:{...emptyAnswers},manualVote:false,voteQ1:false,voteQ2:false,verifiedVote:false,roomCode:"",
+      stage:1,maxStage:1,answers:{...emptyAnswers},intentions:{q1:"",q2:""},
       completed:false,successfulConfig:false};
     renderRole();makeCalculator();bindAnswers();renderInsight();save();renderStage();
   }
@@ -276,10 +256,13 @@
     if(!state||to>state.maxStage)return;
     advance(to);
   }
-  function finish(){
-    if(!state || !state.successfulConfig||!checkAnswers(["poverty","location","leave"]))return;
-    if(!state.verifiedVote&&!state.manualVote){
-      showFeedback("vote-status","請先完成兩題投票，並確認完成狀態。","error");return;
+  function finish(event){
+    event.preventDefault();
+    if(!state || !state.successfulConfig || !checkAnswers(["poverty","location","leave"]))return;
+    if(!intentionValues.has(state.intentions.q1) || !intentionValues.has(state.intentions.q2)){
+      showFeedback("vote-status","請先在兩道題目各選擇一個意向，才能產生證書。","error");
+      renderIntentionUI();
+      return;
     }
     state.completed=true;advance(5);
   }
@@ -295,12 +278,10 @@
     $("go-policy").addEventListener("click",()=>{if(checkAnswers(["poverty"]))advance(3)});
     $("go-vote").addEventListener("click",()=>{if(checkAnswers(["location","leave"]))advance(4)});
     document.querySelectorAll("[data-prev]").forEach(node=>node.addEventListener("click",()=>goBack(Number(node.dataset.prev))));
-    $("vote-q1-check").addEventListener("change",updateManual);
-    $("vote-q2-check").addEventListener("change",updateManual);
-    $("finish-game").addEventListener("click",finish);
+    bindIntentionChoices();
+    $("intention-form").addEventListener("submit",finish);
     $("print-certificate").addEventListener("click",()=>window.print());
     $("back-to-vote").addEventListener("click",()=>goBack(4));
-    window.addEventListener("message",onCloudMessage);
     const old=restore();
     if(old){
       state=old;

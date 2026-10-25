@@ -1,4 +1,4 @@
-/* 經彩人生｜視覺精修版：深藍綠 × 鼠尾草 × 暖杏。插畫仍留空。 */
+/* 經彩人生｜產品介面視覺層：設計 token、互動元件與響應式佈局。 */
 :root {
   --ink:#263b44;--muted:#64777a;--rose:#31786f;--rose-dark:#194f57;
   --border:#dae4e0;--cream:#fcfbf7;--paper:#fff;--mint:#247f73;
@@ -331,4 +331,123 @@ textarea:focus{box-shadow:0 0 0 3px rgba(38,116,100,.10)}
  .cert-feedback{font-size:8.5pt!important;line-height:1.4!important}
  .certificate-top h2{color:#24555a!important}
  .certificate-top h3{color:#3a776c!important}
+}
+
+/* === Product UI system: consistent surfaces, rhythm and feedback === */
+:root{
+  --ui-surface:#ffffff;
+  --ui-surface-soft:#f5f8f5;
+  --ui-text:#263d43;
+  --ui-subtle:#627d7b;
+  --ui-accent:#25776a;
+  --ui-accent-dark:#155e5c;
+  --ui-danger:#b64847;
+  --ui-line:#d9e7df;
+  --ui-focus:0 0 0 4px rgba(37,119,106,.16);
+  --ui-radius:18px;
+}
+body{font-feature-settings:"kern";-webkit-font-smoothing:antialiased}
+.main-content{padding-top:20px}
+.topbar{align-items:center}
+.top-actions{gap:12px;flex-wrap:wrap;justify-content:flex-end}
+.save-status{
+  display:inline-flex;align-items:center;padding:5px 11px;
+  border:1px solid #cfe5d7;background:#eff8ef;border-radius:99px;
+  color:#2d7167;font-size:11px;font-weight:750;white-space:nowrap
+}
+.save-status.is-error{border-color:#f1d1cc;background:#fff0ed;color:#a6403e}
+.app-notice{
+  margin-bottom:18px;border:1px solid #c6e0d3;border-left:4px solid var(--ui-accent);
+  background:#f2faf4;padding:12px 16px;border-radius:12px;
+  color:#275c57;font-size:14px;font-weight:650;box-shadow:var(--shadow)
+}
+.app-notice.is-error{border-color:#edd0c7;border-left-color:var(--ui-danger);background:#fff7f3;color:#99423d}
+.journey-nav{position:relative}
+.journey-pills{gap:6px}
+.journey-pill{font-size:12px}
+.character-panel{position:sticky;top:16px;max-height:calc(100vh - 32px);overflow-y:auto;scrollbar-width:thin}
+.calculator-panel{padding:clamp(20px,2.9vw,33px)}
+.calculator-panel .section-topline{margin-bottom:13px}
+#scenario-fields.field-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:14px}
+.parameter-group{
+  padding:16px 18px 19px;border:1px solid var(--ui-line);
+  background:linear-gradient(145deg,#fdfefd,#f8fbf8);border-radius:var(--ui-radius);
+}
+.parameter-group__heading{display:flex;justify-content:space-between;gap:10px;align-items:baseline;margin-bottom:15px}
+.parameter-group__heading h4{margin:0;color:#235954;font-size:14px;font-weight:900}
+.parameter-group__heading>small{color:#7b9188;font-size:11px;white-space:nowrap}
+.parameter-group__fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+.parameter-group:first-child .parameter-group__fields{grid-template-columns:repeat(3,minmax(0,1fr))}
+.parameter-group .field{min-width:0;align-content:start;gap:5px}
+.field label{line-height:1.45}
+.field input{height:49px;min-height:49px;font-size:16px;font-weight:700;border-radius:11px}
+.field input:focus-visible{outline:none;border-color:#25776a;box-shadow:var(--ui-focus)}
+.field input[aria-invalid="true"]{border-color:var(--ui-danger);background:#fffafa}
+.field-error{display:block;line-height:1.45;font-size:11px;color:var(--ui-danger);font-weight:650}
+.field-error[hidden]{display:none}
+.extras-grid{gap:11px}
+.extra-option{min-height:73px;transition:border-color .18s,background .18s,box-shadow .18s}
+.extra-option:hover{border-color:#a0cec0}
+.extra-option:focus-within{outline:3px solid #247b70;outline-offset:2px}
+.password-card{margin-top:24px}
+.password-row{align-items:stretch}
+.password-row .button{min-width:120px}
+.form-feedback.error{font-weight:700}
+.mobile-story{display:none}
+.button{letter-spacing:.01em}
+.button:focus-visible,.quiet-button:focus-visible{outline:3px solid #237d72;outline-offset:3px}
+.app-dialog{
+  position:fixed;inset:0;margin:auto;
+  width:min(92vw,465px);max-height:90vh;
+  border:1px solid #d4e5dd;border-radius:24px;
+  padding:0;color:#29484b;overflow:auto;
+  box-shadow:0 35px 90px rgba(10,40,44,.27)
+}
+.app-dialog::backdrop{background:rgba(15,38,43,.58);backdrop-filter:blur(3px)}
+.app-dialog__body{padding:clamp(23px,4vw,34px)}
+.app-dialog__eyebrow{font:800 11px "Outfit",sans-serif;letter-spacing:.15em;color:#337d6e}
+.app-dialog h2{font-size:24px;line-height:1.5;margin:8px 0}
+.app-dialog p{font-size:14px;color:#6a7e7b;line-height:1.9;margin-bottom:23px}
+.app-dialog__actions{display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap}
+.certificate{overflow:visible}
+@media (max-width:1050px){
+  .parameter-group:first-child .parameter-group__fields{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:760px){
+  .topbar{gap:9px;padding-left:15px;padding-right:15px}
+  .top-actions{gap:7px}
+  .status-label{display:none}
+  .save-status{font-size:10px}
+  .main-content{padding:10px 14px 48px}
+  .mission-grid{grid-template-columns:minmax(0,1fr)}
+  .character-panel{position:static;max-height:none;overflow:hidden}
+  .character-panel .character-story,.character-panel .reading-prompt{display:none}
+  .character-panel{padding-bottom:17px}
+  .character-visual{margin-bottom:13px}
+  .mobile-story{display:block;margin-bottom:21px;border:1px solid #c8e3d6;border-radius:14px;overflow:hidden;background:#f2f8f2}
+  .mobile-story summary{padding:13px 16px;color:#246e62;cursor:pointer;font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:space-between}
+  .mobile-story summary::-webkit-details-marker{display:none}
+  .mobile-story[open] summary{border-bottom:1px solid #d8e9dc}
+  .mobile-story>div{padding:15px 18px 18px}
+  .mobile-story strong{font-size:14px}
+  .mobile-story p{font-size:14px;line-height:1.9;white-space:pre-line;margin:8px 0 0;color:#3b5655}
+  .parameter-group{padding:14px 13px 15px}
+  .parameter-group:first-child .parameter-group__fields{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .password-row{grid-template-columns:minmax(0,1fr)}
+  .password-row .button{width:100%}
+  .app-dialog__actions{flex-direction:column}
+  .app-dialog__actions button{width:100%}
+  .app-dialog__actions #dialog-accept{order:-1}
+}
+@media (max-width:420px){
+  .parameter-group__fields,.parameter-group:first-child .parameter-group__fields{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .field small{font-size:10px}
+  .parameter-group__heading>small{display:none}
+  .extra-option{padding:10px}
+}
+@media print{
+  .app-dialog,.app-notice,.mobile-story,.save-status{display:none!important}
+  .certificate{break-inside:auto;overflow:visible!important}
+  .cert-answer{break-inside:auto!important;page-break-inside:auto!important}
+  .cert-intention{break-inside:avoid}
 }

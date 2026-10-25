@@ -230,58 +230,57 @@ textarea:focus{box-shadow:0 0 0 3px rgba(38,116,100,.10)}
 .certificate-credit{color:#778c83}
 .page-footer{background:#fbfdf9;border-color:#e2ebe3;color:#71857b}
 
-/* Slots deliberately contain no emojis, silhouettes or generated illustrations. */
-.media-placeholder{
- display:grid;place-items:center;position:relative;
- overflow:hidden;text-align:center;isolation:isolate;
- border:1.5px dashed rgba(81,130,119,.36);
- border-radius:16px;
- color:#64817b;
- background:linear-gradient(145deg,rgba(255,255,255,.64),rgba(255,255,255,.32));
+/* Actual uploaded image assets: transparent PNG art is never clipped or distorted. */
+.brand .artwork-logo {
+  display:block; width:44px; height:44px; flex:0 0 44px;
+  object-fit:contain; background:transparent!important;
+  border:0!important; box-shadow:none!important; border-radius:0;
 }
-.media-placeholder>span{
- position:relative;z-index:2;
- display:block;padding:4px 8px;max-width:100%;
- font-size:11px!important;font-weight:700;letter-spacing:.04em;
- color:inherit;line-height:1.5;
+.artwork-cover {
+  display:block; justify-self:center; align-self:center;
+  width:min(100%,505px); height:auto; max-height:530px;
+  object-fit:contain;
+  filter:drop-shadow(0 18px 23px rgba(0,25,33,.24));
+  animation:artwork-float 7s ease-in-out infinite;
 }
-.media-placeholder--logo{
- width:44px;height:44px;border-radius:13px;color:#6c9485;background:#eef6ef;
+@keyframes artwork-float {
+  0%,100%{transform:translateY(0) rotate(-.45deg)}
+  50%{transform:translateY(-9px) rotate(.4deg)}
 }
-.media-placeholder--cover{
- width:100%;min-height:380px;max-width:420px;border:2px dashed rgba(218,242,228,.36);
- border-radius:25px;background:rgba(235,247,237,.05);color:rgba(255,255,255,.65);
- box-shadow:0 25px 60px -37px rgba(2,30,40,.47);
+.character-visual {
+  height:318px!important;
+  display:grid; place-items:center;
 }
-.media-placeholder--cover>span{font-size:14px!important}
-.media-placeholder--cover:before{
- content:"";position:absolute;inset:14px;border:1px solid rgba(232,245,226,.15);border-radius:18px;
+.character-visual .artwork-character {
+  display:block; position:relative; left:auto;top:auto;bottom:auto;
+  width:214px;height:285px; max-width:88%;
+  object-fit:cover;object-position:center center;
+  margin:0;z-index:2;border-radius:19px;
+  border:3px solid rgba(255,255,255,.87);
+  background:#fffdf9;
+  box-shadow:0 15px 33px -19px rgba(28,71,76,.36),0 0 0 1px rgba(80,130,116,.14);
 }
-.character-portrait.media-placeholder{
- width:clamp(145px,70%,205px);height:188px;margin:0;
- border:2px dashed var(--character-accent,#76a79b);
- background:rgba(255,255,255,.52);
- color:var(--character-accent,#47776d);
- border-radius:23px;
- box-shadow:0 12px 28px -25px rgba(33,63,62,.28);
+.illustration-artwork {
+  display:block;object-fit:contain;
+  height:135px;width:100%;max-width:188px;
+  align-self:center;margin:0 auto 4px;
+  filter:drop-shadow(0 8px 7px rgba(56,57,50,.13));
+  transition:transform .25s ease;
 }
-.character-portrait.media-placeholder>span{font-size:14px!important}
-.illustration-placeholder.media-placeholder{
- width:100%;height:123px;border-radius:15px;align-self:stretch;
- background:rgba(255,255,255,.42);border:1.5px dashed rgba(73,104,100,.32);
- color:#557b76;
+.equiv-tile:hover .illustration-artwork{transform:translateY(-3px) rotate(-1deg)}
+.artwork-certificate-mark {
+  display:block;
+  width:86px;height:86px;margin:0 auto 9px;
+  object-fit:contain;
+  border:0!important;background:transparent!important;
 }
-.illustration-placeholder.media-placeholder>span{font-size:12px!important}
-.certificate-mark.media-placeholder{
- margin:0 auto 6px;width:72px;height:65px;border-radius:13px;
- color:#6b9481;background:#f2f8f1;
+.certificate-seal.artwork-certificate-seal {
+  display:block;flex:0 0 88px;
+  width:88px;height:88px;object-fit:contain;
+  border:0!important;border-radius:0!important;
+  background:transparent!important;
+  transform:none;box-shadow:none;
 }
-.certificate-seal.media-placeholder{
- flex:0 0 72px;width:72px;height:72px;border:1px dashed #95b8a8;
- color:#6d9588;background:#fbfdf7;font:inherit;
- transform:none;box-shadow:none;
-}
-.certificate-seal.media-placeholder>span{font-size:10px!important}
 
 /* Guided-motion accents: energetic enough to notice, never distracting. */
 .parameter-card,.calculator-panel,.character-panel,.thought-card,.intention-question{
@@ -294,34 +293,38 @@ textarea:focus{box-shadow:0 0 0 3px rgba(38,116,100,.10)}
 #start-game:not(:disabled){animation:pulse-outline 3.7s ease-in-out infinite}
 
 @media (max-width:760px){
- .media-placeholder--cover{min-height:190px;height:190px;width:min(85%,340px)}
- .intro-art{padding:20px}
+ .artwork-cover{width:min(92%,350px);height:auto;max-height:258px}
+ .intro-art{padding:16px;min-height:240px}
  .intro-art__caption{bottom:10px;left:18px;font-size:9px}
- .character-portrait.media-placeholder{height:157px;width:160px}
+ .character-visual{height:266px!important}
+ .character-visual .artwork-character{width:178px;height:237px}
  .character-story{font-size:13px}
- .illustration-placeholder.media-placeholder{height:94px}
+ .illustration-artwork{height:114px;max-width:165px}
  .intro-stage{border-radius:24px}
- .certificate-seal.media-placeholder{width:62px;height:62px;flex-basis:62px}
+ .certificate-seal.artwork-certificate-seal{width:70px;height:70px;flex-basis:70px}
 }
 @media (max-width:440px){
- .media-placeholder--cover{min-height:155px;height:155px}
- .illustration-placeholder.media-placeholder{height:84px}
- .character-portrait.media-placeholder{width:140px;height:150px}
+ .artwork-cover{max-height:215px}
+ .intro-art{min-height:213px}
+ .illustration-artwork{height:95px}
+ .character-visual{height:237px!important}
+ .character-visual .artwork-character{width:154px;height:205px}
  .certificate-outlook{font-size:11px}
 }
 @media (prefers-reduced-motion:reduce){
  body::before,body::after,.game-stage:not([hidden]),.journey-pill.active,#start-game:not(:disabled),
  .intention-feedback{animation:none!important}
- .button,.equiv-tile,.intention-option{transition:none!important}
+ .button,.equiv-tile,.intention-option,.illustration-artwork{transition:none!important}
+ .artwork-cover{animation:none!important}
 }
 @media print{
  @page{size:A4 portrait;margin:10mm}
  body{background:white!important}
  body::before,body::after{display:none!important}
  .game-stage:not([hidden]){animation:none!important}
- .media-placeholder--certificate-mark{width:50px;height:42px;margin:0 auto 4px;border:1px dashed #a1bdb0}
- .media-placeholder--certificate-mark>span{font-size:8px!important}
- .certificate-seal.media-placeholder{height:50px;width:50px;flex-basis:50px}
+ .artwork-certificate-mark{width:52px;height:52px;margin:0 auto 3px;object-fit:contain}
+ .certificate-seal.artwork-certificate-seal{height:58px;width:58px;flex-basis:58px;object-fit:contain}
+ .artwork-cover{animation:none!important}
  .certificate-seal.media-placeholder>span{font-size:8px!important}
  .certificate{border:3px double #9fbcb0!important;box-shadow:none!important}
  .certificate-footer{padding-top:7px;margin-top:5px}

@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="utf-8">
+  <base target="_top">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>月經平權｜跨裝置匿名投票</title>
+  <style>
+    :root { color-scheme: light; --rose:#be123c; --soft:#fff1f2; --ink:#172033; --muted:#475569; --line:#e2e8f0; --teal:#0f766e; }
+    *{box-sizing:border-box} html{scroll-behavior:smooth}
+    body{margin:0;padding:14px 10px;background:#fff8fa;color:var(--ink);font:16px/1.6 system-ui,-apple-system,"Noto Sans TC",sans-serif}
+    main{max-width:800px;margin:0 auto;background:white;border:1px solid #fecdd3;border-radius:20px;padding:clamp(16px,3vw,28px)}
+    h1{font-size:clamp(20px,3vw,28px);line-height:1.35;margin:0 0 7px}h2{font-size:19px;margin:0 0 10px}h3{font-size:16px;margin:0 0 10px}
+    p{margin:7px 0 14px;color:var(--muted)}.eyebrow{font-size:13px;color:var(--rose);font-weight:700;margin-bottom:4px}
+    .tabs{display:flex;gap:8px;margin:22px 0}.tabs button{flex:1;background:#f8fafc;color:#334155;border:1px solid var(--line)}
+    .tabs button[aria-selected="true"]{background:var(--rose);border-color:var(--rose);color:white}
+    .field{display:grid;gap:5px;margin:12px 0}.field label{font-weight:700;font-size:14px}
+    input{width:100%;min-height:44px;border:1px solid #94a3b8;border-radius:10px;padding:10px 12px;font:inherit;outline-offset:2px}
+    input:focus-visible,button:focus-visible{outline:3px solid var(--teal);outline-offset:3px}
+    button{padding:10px 14px;min-height:44px;border:1px solid #fecdd3;border-radius:10px;background:white;color:#881337;font:inherit;font-weight:700;cursor:pointer}
+    button:hover{background:var(--soft)}button:disabled{opacity:.5;cursor:not-allowed}
+    .primary{background:var(--rose);border-color:var(--rose);color:#fff}.primary:hover{background:#9f1239}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    .card{padding:16px;border:1px solid var(--line);border-radius:15px;margin:14px 0}
+    .muted{font-size:13px;color:#64748b}.notice{background:#f1f5f9;border-radius:11px;padding:12px 14px;font-size:14px}
+    .badge{display:inline-block;background:#ccfbf1;color:#115e59;border-radius:99px;padding:4px 10px;font-size:12px;font-weight:700}
+    .badge.closed{background:#f1f5f9;color:#475569}
+    .question{margin:20px 0;padding:17px;background:#f8fafc;border:1px solid var(--line);border-radius:15px}
+    .question h3{line-height:1.55}
+    .option{display:block;width:100%;text-align:left;background:white;color:#334155;margin:8px 0;border:1px solid #cbd5e1;font-weight:500}
+    .option.chosen{border-color:var(--teal);background:#ccfbf1;color:#115e59;font-weight:700}
+    .status{margin-top:14px;min-height:28px;font-size:14px;color:#0f766e;font-weight:600;white-space:pre-wrap}
+    .status.error{color:#b91c1c}
+    .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}
+    .stat{border:1px solid var(--line);border-radius:15px;padding:14px}
+    .bar-row{display:grid;grid-template-columns:22px minmax(0,1fr) auto;align-items:center;gap:8px;font-size:13px;margin:9px 0}
+    .track{height:13px;border-radius:99px;overflow:hidden;background:#e2e8f0}
+    .fill{height:100%;background:#be123c;border-radius:99px}
+    .bar-row:nth-child(3) .fill{background:#0f766e}
+    .bar-row:nth-child(4) .fill{background:#64748b}
+    .session-list{margin:12px 0;display:grid;gap:7px}
+    .session-list button{text-align:left;font-weight:500}
+    .code{font-family:ui-monospace,monospace;font-size:22px;letter-spacing:3px;font-weight:800;color:#881337}
+    [hidden]{display:none!important}
+    @media(max-width:480px){body{padding:4px}main{border-radius:12px;padding:15px} .row>button{flex:1}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+  </style>
+</head>
+<body>
+<main>
+  <div class="eyebrow">經彩青春 × 月經平權</div>
+  <h1>課堂跨裝置匿名投票</h1>
+  <p>使用既有兩道課堂問題。學生不必登入、也不需輸入姓名；教師可建立場次並即時查看彙總結果。</p>
+  <div class="tabs" role="tablist" aria-label="操作模式">
+    <button type="button" role="tab" id="student-tab" aria-controls="student-panel" aria-selected="true">學生投票</button>
+    <button type="button" role="tab" id="teacher-tab" aria-controls="teacher-panel" aria-selected="false">教師管理</button>
+  </div>
+  <section id="student-panel" role="tabpanel" aria-labelledby="student-tab">
+    <div class="field"><label for="join-code">教師提供的班級代碼</label>
+      <input id="join-code" maxlength="6" autocomplete="off" inputmode="text" placeholder="例如 A12B3C">
+    </div>
+    <button id="join-btn" type="button" class="primary">加入投票場次</button>
+    <div id="room" hidden>
+      <div class="card">
+        <span id="room-status" class="badge">開放投票</span>
+        <h2 id="room-name"></h2>
+        <p class="muted">同一瀏覽器每題最多記錄一票；請勿輸入或分享個人姓名、學號。</p>
+      </div>
+      <section class="question" aria-labelledby="q1-title">
+        <h3 id="q1-title">Q1. 你或你身邊的同學，曾有過「因為衛生棉不夠/省錢而減少更換頻率」的經驗嗎？</h3>
+        <div id="question-1">
+          <button type="button" class="option" data-q="1" data-option="a">經常或偶爾會有這種情況</button>
+          <button type="button" class="option" data-q="1" data-option="b">從來沒有，補給都很充裕</button>
+          <button type="button" class="option" data-q="1" data-option="c">不清楚 / 沒注意過</button>
+        </div>
+        <p id="answered-1" class="muted" aria-live="polite"></p>
+      </section>
+      <section class="question" aria-labelledby="q2-title">
+        <h3 id="q2-title">Q2. 你認為學校提供免費衛生棉，放置在哪裡最合適？</h3>
+        <div id="question-2">
+          <button type="button" class="option" data-q="2" data-option="a">各樓層廁所內部（包含女廁與無性別廁所）</button>
+          <button type="button" class="option" data-q="2" data-option="b">健康中心 / 保健室</button>
+          <button type="button" class="option" data-q="2" data-option="c">班級導師櫃或教官室</button>
+        </div>
+        <p id="answered-2" class="muted" aria-live="polite"></p>
+      </section>
+      <p class="notice">個別作答不公開，僅教師端可讀取該場次的彙總統計。本系統使用瀏覽器匿名識別碼降低重複投票，不能保證不同裝置之間嚴格一人一票。</p>
+    </div>
+  </section>
+  <section id="teacher-panel" role="tabpanel" aria-labelledby="teacher-tab" hidden>
+    <div class="field"><label for="teacher-secret">教師管理密語</label>
+      <input id="teacher-secret" type="password" autocomplete="off" placeholder="Apps Script 已設定的管理密語">
+    </div>
+    <div class="field"><label for="class-label">班級標籤（不填學生個資）</label>
+      <input id="class-label" maxlength="35" value="課堂投票" placeholder="例如：高中月經平權課堂">
+    </div>
+    <div class="row">
+      <button type="button" id="create-btn" class="primary">建立新場次</button>
+      <button type="button" id="sessions-btn">查看既有場次</button>
+    </div>
+    <div id="teacher-room" hidden class="card">
+      <p>目前場次</p>
+      <div class="code" id="teacher-code"></div>
+      <p id="teacher-room-label"></p>
+      <div class="row">
+        <span id="teacher-open" class="badge">開放投票</span>
+        <button type="button" id="close-btn">結束本場次</button>
+        <button type="button" id="refresh-btn">立即刷新統計</button>
+      </div>
+      <p class="muted">教師端每 10 秒自動刷新統計；學生端送出時立即寫入試算表。</p>
+    </div>
+    <div id="sessions" class="session-list" aria-live="polite"></div>
+    <div id="stats" class="stats-grid" aria-live="polite"></div>
+  </section>
+  <div id="feedback" class="status" role="status" aria-live="polite"></div>
+  <p class="muted">資料僅寫入教師設定的 Google 試算表。瀏覽器本機儲存匿名裝置識別碼；清除瀏覽器資料或更換裝置可能解除重複投票限制。</p>
+</main>
+<script>
+(function () {
+  'use strict';
+  // Template field populated by Code.gs; absent for the stand-alone voting page.
+  const certificateNonce = <?!= JSON.stringify(bridgeNonce) ?>;
+  function reportCompletionFromServerState() {
+    if (!certificateNonce || !state.code || !state.voted["1"] || !state.voted["2"]) return;
+    // These flags were obtained from Google Apps Script studentJoin / studentVote responses.
+    window.top.postMessage({
+      type: "JINGCAI_CLOUD_VOTE_COMPLETE",
+      version: 1,
+      nonce: certificateNonce,
+      roomCode: state.code,
+      bothVoted: true
+    }, "https://kaoelvmpvm.github.io");
+  }
+  const $ = id => document.getElementById(id);
+  const choices = ['a','b','c'];
+  const state = { code:'', open:false, voted:{}, token:'', adminCode:'', timer:null, busy:false };
+  const store = {
+    get(k){try{return localStorage.getItem(k)}catch(e){return null}},
+    set(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+  };
+  function makeToken() {
+    if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') return crypto.randomUUID();
+    const x = new Uint8Array(32);
+    if (typeof crypto === 'undefined' || !crypto.getRandomValues) throw Error('瀏覽器不支援安全匿名識別碼，無法投票。');
+    crypto.getRandomValues(x);
+    return Array.from(x,n=>n.toString(16).padStart(2,'0')).join('');
+  }
+  function token() {
+    if (!state.token) {
+      state.token = store.get('lifeCostVoterId') || makeToken();
+      store.set('lifeCostVoterId',state.token);
+    }
+    return state.token;
+  }
+  function call(name,...args){
+    return new Promise((resolve,reject)=>{
+      google.script.run.withSuccessHandler(resolve).withFailureHandler(err=>reject(new Error(err && err.message ? err.message : String(err))))[name](...args);
+    });
+  }
+  function notify(message,error=false){
+    $('feedback').textContent=message;
+    $('feedback').classList.toggle('error',Boolean(error));
+  }
+  function teacherSecret(){return $('teacher-secret').value.trim()}
+  function teacherCheck(){
+    if(teacherSecret().length < 16)throw Error('請輸入已設定的教師管理密語（至少 16 字元）。');
+    return teacherSecret();
+  }
+  function renderStudent(){
+    const voted=state.voted;
+    $('room').hidden=!state.code;
+    $('room-name').textContent=state.code + '｜' + (state.label || '課堂投票');
+    $('room-status').textContent=state.open?'開放投票':'本場次已結束';
+    $('room-status').classList.toggle('closed',!state.open);
+    [1,2].forEach(q=>{
+      const selected=voted[String(q)] || null;
+      document.querySelectorAll('[data-q="'+q+'"]').forEach(button=>{
+        button.disabled=!state.open || Boolean(selected) || state.busy;
+        button.classList.toggle('chosen',selected===button.dataset.option);
+        button.setAttribute('aria-pressed',String(selected===button.dataset.option));
+      });
+      $('answered-'+q).textContent=selected?'本題已完成投票，不可修改。':(state.open?'本題尚未作答。':'投票已結束。');
+    });
+  }
+  function renderStats(payload){
+    $('teacher-room').hidden=false;
+    state.adminCode=payload.room.code;
+    $('teacher-code').textContent=payload.room.code;
+    $('teacher-room-label').textContent=payload.room.label;
+    $('teacher-open').textContent=payload.room.open?'開放投票':'已結束';
+    $('teacher-open').classList.toggle('closed',!payload.room.open);
+    $('close-btn').disabled=!payload.room.open;
+    const mount=$('stats'); mount.replaceChildren();
+    [1,2].forEach(q=>{
+      const data=payload.questions[q];
+      const card=document.createElement('div');card.className='stat';
+      const title=document.createElement('h3');title.textContent='第 '+q+' 題 · 已投 '+data.total+' 票';
+      card.append(title);
+      choices.forEach(option=>{
+        const count=Number(data[option]||0);
+        const pct=data.total?Math.round(count/data.total*100):0;
+        const row=document.createElement('div');row.className='bar-row';
+        const label=document.createElement('strong');label.textContent=option.toUpperCase();
+        const track=document.createElement('div');track.className='track';
+        const fill=document.createElement('div');fill.className='fill';fill.style.width=pct+'%';
+        track.append(fill);
+        const value=document.createElement('span');value.textContent=count+' 票 · '+pct+'%';
+        row.append(label,track,value);card.append(row);
+      });
+      mount.append(card);
+    });
+  }
+  async function join(){
+    try{
+      notify('正在驗證班級代碼…');
+      const code=$('join-code').value.trim().toUpperCase();
+      state.code='';
+      const joined=await call('studentJoin',code,token());
+      Object.assign(state,{code:joined.code,label:joined.label,open:joined.open,voted:joined.voted || {}});
+      renderStudent();reportCompletionFromServerState();notify('已加入場次 '+state.code+'。');
+    }catch(e){notify(e.message,true);}
+  }
+  async function vote(question,option){
+    if(state.busy||!state.code||!state.open||state.voted[String(question)])return;
+    state.busy=true;renderStudent();notify('正在送出投票…');
+    try{
+      const result=await call('studentVote',state.code,question,option,token());
+      state.voted=result.voted || {};
+      reportCompletionFromServerState();
+      notify(result.note || '投票完成。');
+    }catch(e){notify(e.message,true);}finally{state.busy=false;renderStudent();}
+  }
+  async function showSessions(){
+    try{
+      notify('讀取場次中…');
+      const items=await call('teacherListSessions',teacherCheck());
+      const mount=$('sessions');mount.replaceChildren();
+      if(!items.length){mount.textContent='尚無投票場次。';}
+      items.forEach(item=>{
+        const btn=document.createElement('button');btn.type='button';
+        btn.textContent=item.code+'｜'+item.label+'｜'+(item.open?'開放':'已結束');
+        btn.addEventListener('click',()=>selectSession(item.code));
+        mount.append(btn);
+      });
+      notify('場次列表已更新。');
+    }catch(e){notify(e.message,true);}
+  }
+  async function create(){
+    try{
+      notify('建立投票場次中…');
+      const session=await call('teacherCreateSession',teacherCheck(),$('class-label').value);
+      await selectSession(session.code);
+      notify('新場次 '+session.code+' 已建立。請提供代碼給學生。');
+    }catch(e){notify(e.message,true);}
+  }
+  async function selectSession(code){
+    try{
+      const data=await call('teacherStats',teacherCheck(),code);
+      renderStats(data);
+      beginPolling();
+      notify('場次 '+code+' 已載入。');
+    }catch(e){notify(e.message,true);}
+  }
+  async function refresh(){
+    if(!state.adminCode || document.hidden || $('teacher-panel').hidden)return;
+    try{renderStats(await call('teacherStats',teacherCheck(),state.adminCode));}
+    catch(e){notify(e.message,true);}
+  }
+  function beginPolling(){
+    if(state.timer)clearInterval(state.timer);
+    state.timer=setInterval(refresh,10000);
+  }
+  async function closeSession(){
+    if(!state.adminCode||!confirm('確定結束 '+state.adminCode+' 場次？結束後學生將無法再投票。'))return;
+    try{
+      await call('teacherCloseSession',teacherCheck(),state.adminCode);
+      await selectSession(state.adminCode);
+      notify('場次已結束。');
+    }catch(e){notify(e.message,true);}
+  }
+  function tab(role){
+    const student=role==='student';
+    $('student-tab').setAttribute('aria-selected',String(student));
+    $('teacher-tab').setAttribute('aria-selected',String(!student));
+    $('student-panel').hidden=!student;$('teacher-panel').hidden=student;
+    if(!student && state.adminCode)refresh();
+  }
+  $('student-tab').addEventListener('click',()=>tab('student'));
+  $('teacher-tab').addEventListener('click',()=>tab('teacher'));
+  $('join-btn').addEventListener('click',join);
+  $('join-code').addEventListener('keydown',e=>{if(e.key==='Enter')join();});
+  document.querySelectorAll('[data-q]').forEach(button=>button.addEventListener('click',()=>vote(Number(button.dataset.q),button.dataset.option)));
+  $('create-btn').addEventListener('click',create);
+  $('sessions-btn').addEventListener('click',showSessions);
+  $('close-btn').addEventListener('click',closeSession);
+  $('refresh-btn').addEventListener('click',refresh);
+  window.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh();});
+})();
+</script>
+</body>
+</html>

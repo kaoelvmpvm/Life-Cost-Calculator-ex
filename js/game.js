@@ -22,7 +22,7 @@
   const safelyRemove = () => {try{sessionStorage.removeItem(SESSION_KEY)}catch{}};
   const random = length => {
     const data = new Uint8Array(length);
-    if (crypto && crypto.getRandomValues) crypto.getRandomValues(data);
+    if (typeof crypto!=="undefined" && crypto.getRandomValues) crypto.getRandomValues(data);
     else for(let i=0;i<length;i++)data[i]=Math.floor(Math.random()*256);
     return [...data].map(x=>x.toString(16).padStart(2,"0")).join("");
   };
@@ -50,7 +50,7 @@
           location:String(raw.answers?.location||"").slice(0,5000),
           leave:String(raw.answers?.leave||"").slice(0,5000)
         },
-        manualVote: Boolean(raw.manualVote), verifiedVote: Boolean(raw.verifiedVote),
+        manualVote: Boolean(raw.manualVote), voteQ1: Boolean(raw.voteQ1||raw.manualVote), voteQ2: Boolean(raw.voteQ2||raw.manualVote), verifiedVote: Boolean(raw.verifiedVote),
         roomCode: String(raw.roomCode||"").slice(0,6), completed: Boolean(raw.completed),
         successfulConfig: Boolean(raw.successfulConfig)
       };
@@ -212,15 +212,17 @@
     if(!state)return;
     $("vote-verified-box").hidden=!state.verifiedVote;
     $("vote-manual-box").hidden=state.verifiedVote;
-    $("vote-q1-check").checked=state.manualVote || state.verifiedVote;
-    $("vote-q2-check").checked=state.manualVote || state.verifiedVote;
+    $("vote-q1-check").checked=state.voteQ1 || state.verifiedVote;
+    $("vote-q2-check").checked=state.voteQ2 || state.verifiedVote;
     if(state.verifiedVote)showFeedback("vote-status","已收到兩題完成通知，可以領取學習證書。","ok");
     else if(state.manualVote)showFeedback("vote-status","已紀錄為學生自行確認完成（非雲端驗證）。","ok");
     else showFeedback("vote-status","請先完成兩題投票，再由系統偵測或自行確認。");
     $("finish-game").disabled=!(state.manualVote||state.verifiedVote);
   }
   function updateManual() {
-    state.manualVote=$("vote-q1-check").checked&&$("vote-q2-check").checked;
+    state.voteQ1=$("vote-q1-check").checked;
+    state.voteQ2=$("vote-q2-check").checked;
+    state.manualVote=state.voteQ1&&state.voteQ2;
     save();updateVoteUI();
   }
   function populateCertificate() {
@@ -266,7 +268,7 @@
   function begin(){
     const role=chooseRole();
     state={version:1,roleId:role.id,student:$("student-label").value.trim().slice(0,30),
-      stage:1,maxStage:1,answers:{...emptyAnswers},manualVote:false,verifiedVote:false,roomCode:"",
+      stage:1,maxStage:1,answers:{...emptyAnswers},manualVote:false,voteQ1:false,voteQ2:false,verifiedVote:false,roomCode:"",
       completed:false,successfulConfig:false};
     renderRole();makeCalculator();bindAnswers();renderInsight();save();renderStage();
   }

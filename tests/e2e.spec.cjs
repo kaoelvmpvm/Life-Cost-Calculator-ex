@@ -30,6 +30,7 @@ test("完整通關：角色設定、思辨、選擇及證書", async ({ page }) 
   const role = await enterGame(page);
   await expect(page.locator("#character-portrait")).toHaveAttribute("src", role.image);
   await passCalculator(page, role);
+  await expect(page.locator("#insight-title")).toBeFocused();
   await page.locator("#answer-poverty").fill("我會比較不同政策的優點、成本與公平性。");
   await page.locator("#go-policy").click();
   await expect(page.locator("#stage-policy")).toBeVisible();
@@ -47,6 +48,9 @@ test("完整通關：角色設定、思辨、選擇及證書", async ({ page }) 
   await page.emulateMedia({ media: "print" });
   await expect(page.locator("#certificate")).toBeVisible();
   await expect(page.locator("#intro")).toBeHidden();
+  for(const slot of ["certificate-mark","certificate-seal"]){
+    await expect.poll(()=>page.locator('[data-image-slot="'+slot+'"]').evaluate(img=>img.complete && img.naturalWidth>0)).toBe(true);
+  }
 });
 
 test("輸入範圍、重新開始對話框及復原", async ({ page }) => {
@@ -82,8 +86,23 @@ test.describe("手機排版", () => {
     await expect(page.locator("#mobile-story-text")).toBeVisible();
     await expect(page.locator("#mobile-story-name")).toContainText(role.name);
     await expect(page.locator("#input-startAge")).toBeVisible();
+    const overflow=await page.evaluate(()=>document.documentElement.scrollWidth-window.innerWidth);
+    expect(overflow,"手機不應產生水平捲動").toBeLessThan(3);
     await page.locator("#input-endAge").fill("55");
     await page.reload({ waitUntil: "domcontentloaded" });
     await expect(page.locator("#input-endAge")).toHaveValue("55");
   });
+});
+
+test("計算只顯示金額；確認通關後才給出錯誤類別", async ({page})=>{
+  const role=await enterGame(page);
+  const age=role.settings.startAge===12?13:12;
+  await page.locator("#input-startAge").fill(String(age));
+  await page.locator("#calculate-now").click();
+  await expect(page.locator("#calculation-display")).toBeVisible();
+  await expect(page.locator("#mission-feedback")).toBeEmpty();
+  await page.locator("#password-input").fill("100000");
+  await page.locator("#password-form button[type=submit]").click();
+  await expect(page.locator("#mission-feedback")).toContainText("生理歷程");
+  await expect(page.locator("#stage-mission")).toBeVisible();
 });

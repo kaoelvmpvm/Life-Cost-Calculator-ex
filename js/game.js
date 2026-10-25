@@ -12,10 +12,11 @@
   const emptyAnswers = {poverty:"",location:"",leave:""};
   const allowedStages = [1,2,3,4,5];
   let state = null;
+  let noticeTimeout=null;
   const roleById = id => roleBook.find(x=>x.id===id);
   const roleResult = () => CostModel.calculate(roleById(state.roleId).settings);
   const safelyGet = () => {try{return sessionStorage.getItem(SESSION_KEY)}catch{return null}};
-  const safelyPut = value => {try{sessionStorage.setItem(SESSION_KEY,JSON.stringify(value))}catch{}};
+  const safelyPut = value => {try{sessionStorage.setItem(SESSION_KEY,JSON.stringify(value));return true}catch{return false}};
   const safelyRemove = () => {try{sessionStorage.removeItem(SESSION_KEY)}catch{}};
   function chooseRole() {
     if(typeof crypto!=="undefined"&&crypto.getRandomValues){
@@ -44,13 +45,27 @@
           q1:["a","b","c"].includes(raw.intentions?.q1) ? raw.intentions.q1 : "",
           q2:["a","b","c"].includes(raw.intentions?.q2) ? raw.intentions.q2 : ""
         },
-        completed: Boolean(raw.completed), successfulConfig: Boolean(raw.successfulConfig)
+        completed: Boolean(raw.completed), successfulConfig: Boolean(raw.successfulConfig),
+        draft:raw.draft && typeof raw.draft==="object" ? raw.draft : null
       };
       if(normalized.stage===5 && (!normalized.completed || !normalized.intentions.q1 || !normalized.intentions.q2)) normalized.stage=4;
       return normalized;
     } catch { return null; }
   }
-  function save() { if(state)safelyPut(state); }
+  function save() {
+    if(!state)return;
+    const stored=safelyPut(state);
+    const label=$("save-status");
+    label.hidden=false;
+    label.textContent=stored?"✓ 進度已儲存":"儲存失敗，離開前請另存證書";
+    label.classList.toggle("is-error",!stored);
+  }
+  function notice(message,type=""){
+    const el=$("app-notice");el.textContent=message;el.hidden=false;
+    el.classList.toggle("is-error",type==="error");
+    if(noticeTimeout)clearTimeout(noticeTimeout);
+    noticeTimeout=setTimeout(()=>{el.hidden=true;noticeTimeout=null},5500);
+  }
   function showFeedback(id,message,type="") {
     const el=$(id);el.textContent=message;el.classList.remove("error","ok");if(type)el.classList.add(type);
   }
@@ -60,6 +75,8 @@
     $("character-subtitle").textContent=role.subtitle;
     $("character-story").textContent=role.story;
     $("character-tag").textContent=role.tag;
+    $("mobile-story-name").textContent=role.name+"｜"+role.subtitle;
+    $("mobile-story-text").textContent=role.story;
     const portrait=$("character-portrait");
     // Only load the portrait of the current random role, including restored sessions.
     portrait.src=role.image;
@@ -71,25 +88,59 @@
 
   function makeCalculator() {
     const values=$("scenario-fields");values.replaceChildren();
+    const groupGridByField={};
+    for(const group of [
+      {title:"01 · 生理歷程",subtitle:"年齡與經期",keys:["startAge","endAge","periodDays"]},
+      {title:"02 · 使用習慣",subtitle:"數量與比例",keys:["padsPerDay","nightRatio"]},
+      {title:"03 · 用品價格",subtitle:"日用與夜用",keys:["dayPadPrice","nightPadPrice"]}
+    ]){
+      const section=document.createElement("section");section.className="parameter-group";
+      const heading=document.createElement("h4");heading.textContent=group.title;
+      const subtitle=document.createElement("small");subtitle.textContent=group.subtitle;
+      const header=document.createElement("div");header.className="parameter-group__heading";header.append(heading,subtitle);
+      const grid=document.createElement("div");grid.className="parameter-group__fields";
+      section.append(header,grid);values.append(section);
+      for(const key of group.keys)groupGridByField[key]=grid;
+    }
     for (const field of fields) {
       const wrap=document.createElement("div");wrap.className="field";
       const label=document.createElement("label");label.htmlFor="input-"+field.id;label.textContent=field.label;
       const input=document.createElement("input");
       input.type="number";input.id="input-"+field.id;input.min=String(field.min);input.max=String(field.max);
-      input.step=String(field.step);input.value=String(CostModel.DEFAULTS[field.id]);input.required=true;
-      const note=document.createElement("small");note.textContent="範圍："+field.min+"–"+field.max+" "+field.unit;
-      wrap.append(label,input,note);values.append(wrap);
-      input.addEventListener("input",invalidate);
+      input.step=String(field.step);
+      input.value=state?.draft?.fields?.[field.id]??String(CostModel.DEFAULTS[field.id]);input.required=true;
+      const note=document.createElement("small");note.id="hint-"+field.id;note.textContent="範圍："+field.min+"–"+field.max+" "+field.unit;
+      const error=document.createElement("span");error.className="field-error";error.id="error-"+field.id;error.hidden=true;
+      input.setAttribute("aria-describedby",note.id+" "+error.id);
+      wrap.append(label,input,note,error);groupGridByField[field.id].append(wrap);
+      input.addEventListener("input",()=>{invalidate();captureDraft();if(input.getAttribute("aria-invalid")==="true")validateField(field);});
+      input.addEventListener("blur",()=>validateField(field));
     }
     const extension=$("scenario-extras");extension.replaceChildren();
     for(const item of extras){
       const label=document.createElement("label");label.className="extra-option";
       const input=document.createElement("input");input.id="input-"+item.id;input.type="checkbox";
-      input.checked=CostModel.DEFAULTS[item.id];input.addEventListener("change",invalidate);
+      input.checked=state?.draft?.extras?.[item.id]??CostModel.DEFAULTS[item.id];input.addEventListener("change",()=>{invalidate();captureDraft();});
       const text=document.createElement("span");text.textContent=item.label;
       const note=document.createElement("small");note.textContent="+ NT$ "+item.amount+"／月";text.append(note);
       label.append(input,text);extension.append(label);
     }
+  }
+  function captureDraft(){
+    if(!state)return;
+    state.draft={fields:Object.fromEntries(fields.map(f=>[f.id,$("input-"+f.id).value])),
+      extras:Object.fromEntries(extras.map(x=>[x.id,$("input-"+x.id).checked]))};
+    save();
+  }
+  function validateField(field){
+    const input=$("input-"+field.id),text=input.value.trim(),value=Number(text);
+    const valid=text!==""&&Number.isFinite(value)&&value>=field.min&&value<=field.max
+      &&Math.abs(Math.round((value-field.min)/field.step)-(value-field.min)/field.step)<1e-7;
+    const error=$("error-"+field.id);
+    input.setAttribute("aria-invalid",String(!valid));
+    error.hidden=valid;
+    error.textContent=valid?"":"請輸入 "+field.min+" 至 "+field.max+"，間隔 "+field.step+" 的數值。";
+    return valid;
   }
   function invalidate(){
     $("calculation-display").hidden=true;
@@ -100,9 +151,9 @@
     const v={};
     for(const f of fields) {
       const input=$("input-"+f.id),num=Number(input.value);
-      if(!input.value.trim() || !Number.isFinite(num) || num<f.min || num>f.max
-        || Math.abs(Math.round((num-f.min)/f.step)-(num-f.min)/f.step)>1e-7){
-        throw new Error("請檢查「"+f.label+"」的輸入範圍與刻度。");
+      if(!validateField(f)){
+        input.focus();
+        throw new Error("請先修正「"+f.label+"」的輸入格式。");
       }
       v[f.id]=num;
     }
@@ -130,7 +181,14 @@
       const values=formValues();
       const mismatches=matchingFields(values);
       if(mismatches.length){
-        showFeedback("mission-feedback","還有 "+mismatches.length+" 個設定與故事內容不一致。請重新閱讀情境，再調整數值與勾選項目。","error");
+        const groups=[
+          {keys:["startAge","endAge","periodDays"],label:"生理歷程"},
+          {keys:["padsPerDay","nightRatio"],label:"用品使用"},
+          {keys:["dayPadPrice","nightPadPrice"],label:"用品單價"},
+          {keys:extras.map(x=>x.id),label:"額外開銷"}
+        ];
+        const suggestions=groups.filter(g=>g.keys.some(k=>mismatches.includes(k))).map(g=>g.label);
+        showFeedback("mission-feedback","還有 "+mismatches.length+" 個設定與故事內容不一致。請優先檢查："+suggestions.join("、")+"。","error");
         return;
       }
       const guess=$("password-input").value.replace(/[NT$，,\s]/gi,"");
@@ -160,7 +218,13 @@
   }
   function checkAnswers(keys){
     const incomplete=keys.some(k=>!String(state.answers[k]||"").trim());
-    if(incomplete){window.alert("請先寫下你的想法，再繼續這段故事。");return false;}
+    if(incomplete){
+      const ids={poverty:"answer-poverty",location:"answer-location",leave:"answer-leave"};
+      const key=keys.find(k=>!String(state.answers[k]||"").trim());
+      $(ids[key]).focus();
+      notice("請先在目前題目寫下你的想法，再繼續這段故事。","error");
+      return false;
+    }
     return true;
   }
   // These answers are personal intentions, not an anonymous class poll.
@@ -244,12 +308,14 @@
       document.querySelectorAll("#certificate img").forEach(img=>{img.loading="eager";});
     }
     window.scrollTo({top:0,behavior:"auto"});
+    const heading=$(stageId[state.stage]).querySelector("h2");
+    if(heading){heading.tabIndex=-1;heading.focus({preventScroll:true});}
   }
   function begin(){
     const role=chooseRole();
     state={version:2,roleId:role.id,student:$("student-label").value.trim().slice(0,30),
       stage:1,maxStage:1,answers:{...emptyAnswers},intentions:{q1:"",q2:""},
-      completed:false,successfulConfig:false};
+      completed:false,successfulConfig:false,draft:null};
     renderRole();makeCalculator();bindAnswers();renderInsight();save();renderStage();
   }
   function goBack(to) {
@@ -267,12 +333,13 @@
     state.completed=true;advance(5);
   }
   function clear(){
-    if(!window.confirm("確定重新開始嗎？目前角色、試算進度與三段思辨紀錄將清空。"))return;
-    safelyRemove();window.location.reload();
+    $("app-confirm").showModal();
   }
   function init(){
     $("start-game").addEventListener("click",begin);
     $("reset-game").addEventListener("click",clear);
+    $("dialog-cancel").addEventListener("click",()=>$("app-confirm").close());
+    $("dialog-accept").addEventListener("click",()=>{safelyRemove();window.location.reload();});
     $("calculate-now").addEventListener("click",calculate);
     $("password-form").addEventListener("submit",submitPassword);
     $("go-policy").addEventListener("click",()=>{if(checkAnswers(["poverty"]))advance(3)});

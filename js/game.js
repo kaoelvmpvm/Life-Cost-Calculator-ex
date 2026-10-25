@@ -57,7 +57,8 @@
     const stored=safelyPut(state);
     const label=$("save-status");
     label.hidden=false;
-    label.textContent=stored?"✓ 進度已儲存":"儲存失敗，離開前請另存證書";
+    const message=stored?"✓ 進度已儲存":"儲存失敗，離開前請另存證書";
+    if(label.textContent!==message)label.textContent=message;
     label.classList.toggle("is-error",!stored);
   }
   function notice(message,type=""){
@@ -366,6 +367,7 @@
         $("password-input").value=String(roleResult().totalLifetimeCost);
       }
       renderStage();
+      save(); // Refresh the persisted draft and the visible save indicator after restoring.
     }
   }
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);

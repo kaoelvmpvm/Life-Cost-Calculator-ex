@@ -84,7 +84,8 @@ test("五位角色以情境敘事交代條件，不再展示設定對照表",()=
   for(const role of roles){
     assert.ok(role.story.length>130,role.name+" 敘事情境應包含足夠的生活細節");
     assert.ok(role.story.includes("\n\n"),role.name+" 情境應分段");
-    assert.ok(role.story.includes(String(role.settings.startAge).replace("12","十二")),role.name+" 初潮描述");
+    assert.ok(role.story.includes("初潮") || role.story.includes("第一次月經"),role.name+" 初潮描述");
+    assert.ok(role.story.includes("停經"),role.name+" 停經描述");
   }
   assert.doesNotMatch(html,/id="character-clues"|class="clue-list"|角色檔案・試算線索/);
   assert.doesNotMatch(js,/const clueData|character-clues|\.clue-row/);

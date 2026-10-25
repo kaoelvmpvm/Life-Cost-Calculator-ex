@@ -12,7 +12,6 @@
 <link rel="stylesheet" href="./css/game.css">
 <script src="./js/cost-model.js" defer></script>
 <script src="./js/roles.js" defer></script>
-<script src="./js/config.js" defer></script>
 <script src="./js/game.js" defer></script>
 </head>
 <body>
@@ -32,7 +31,7 @@
       <p class="eyebrow">INTERACTIVE LEARNING EXPERIENCE</p>
       <h1>每一筆開銷，<br><em>都有一段故事。</em></h1>
       <p class="intro-description">走進一位角色的生理期人生，算出她的長期開銷，再用數據與觀點，挑戰月經平權的真實議題。</p>
-      <div class="intro-features"><span>✿ 隨機角色</span><span>▦ 金額解密</span><span>◉ 班級投票</span><span>✧ 學習證書</span></div>
+      <div class="intro-features"><span>✿ 隨機角色</span><span>▦ 金額解密</span><span>◉ 個人意向</span><span>✧ 學習證書</span></div>
       <div class="identity-box">
         <label for="student-label">你的稱呼或座號（選填，僅用於學習證書）</label>
         <input id="student-label" maxlength="30" autocomplete="off" placeholder="例如：815 班 12 號">
@@ -49,7 +48,7 @@
         <span class="journey-pill" data-stage-pill="1">01 <small>角色解密</small></span>
         <span class="journey-pill" data-stage-pill="2">03 <small>數據思辨</small></span>
         <span class="journey-pill" data-stage-pill="3">04 <small>政策思辨</small></span>
-        <span class="journey-pill" data-stage-pill="4">05 <small>投票倡議</small></span>
+        <span class="journey-pill" data-stage-pill="4">05 <small>意向選擇</small></span>
         <span class="journey-pill" data-stage-pill="5">✓ <small>學習證書</small></span>
       </div>
     </nav>
@@ -116,36 +115,47 @@
     </section>
 
     <section id="stage-vote" class="game-stage" aria-labelledby="vote-title" hidden>
-      <div class="stage-heading"><div><span class="eyebrow">CHAPTER 04 · COLLECTIVE VOICES</span><h2 id="vote-title">第五關｜經彩平權倡議者</h2><p>請依教師提供的場次代碼，在 Google 雲端投票頁完成原有兩道題目。</p></div><span class="stage-number">05</span></div>
-      <div class="vote-explainer"><div class="vote-bubble" aria-hidden="true">◉</div><div><h3>獨立思考，再看看全班的選擇</h3><p>請完成兩題匿名投票。第一題涉及個人或身邊同學的經驗，證書只記錄完成狀態，不顯示個別選項。</p></div></div>
-      <div class="vote-shell">
-        <div class="vote-shell-header"><div><strong>課堂雲端投票</strong><p>教師可建立場次，學生輸入代碼投票。</p></div><a id="vote-external" class="external-link" target="_blank" rel="noopener noreferrer" href="#">在新分頁開啟 ↗</a></div>
-        <iframe id="vote-frame" title="Google Apps Script 匿名課堂投票" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
-      </div>
-      <div class="vote-confirmation">
-        <div id="vote-verified-box" hidden class="verified-box"><span>✓</span><div><strong>已收到兩題完成訊號</strong><p>雲端投票頁已回報目前場次兩道題皆完成。</p></div></div>
-        <div id="vote-manual-box" class="manual-box">
-          <h3>投票完成確認</h3>
-          <p>目前的 Google 網頁版本可能還沒有啟用自動完成通知。若你已確實投完兩題，可自行勾選紀錄；這是學生自我確認，並非伺服器驗證。</p>
-          <label class="confirm-option"><input type="checkbox" id="vote-q1-check">我已在 Google 投票頁完成第 1 題</label>
-          <label class="confirm-option"><input type="checkbox" id="vote-q2-check">我已在 Google 投票頁完成第 2 題</label>
-          <span id="vote-proof-label" class="small-note"></span>
-        </div>
-        <p id="vote-status" class="form-feedback" role="status" aria-live="polite"></p>
-        <div class="stage-actions"><button class="button button-light" type="button" data-prev="3">返回第四關</button><button id="finish-game" class="button button-primary" type="button">完成挑戰・領取學習證書 ↗</button></div>
-      </div>
+      <div class="stage-heading"><div><span class="eyebrow">CHAPTER 04 · YOUR OWN PERSPECTIVE</span><h2 id="vote-title">第五關｜經彩平權倡議者</h2><p>根據前面的思辨，選出你的意向。這裡沒有對錯或全班票數統計，只保存你自己的選擇，並將它帶入學習證書。</p></div><span class="stage-number">05</span></div>
+      <div class="vote-explainer intention-intro"><div class="vote-bubble" aria-hidden="true">◉</div><div><h3>尊重不同觀點，留下自己的選擇</h3><p>以下沿用原教材兩道問題與選項，請各選擇一項；系統不評分，也不會傳送到 Google 試算表。完成後可在證書看到兩題意向紀錄。</p></div></div>
+      <form id="intention-form" class="intention-form" autocomplete="off">
+        <fieldset class="intention-question" id="intention-q1">
+          <legend><span class="intention-question__index">Q1</span>你或你身邊的同學，曾有過「因為衛生棉不夠/省錢而減少更換頻率」的經驗嗎？</legend>
+          <p class="intention-question__note">請依自己的了解選擇；不願分享相關經驗時，也可以選擇「不清楚／沒注意過」。選擇會出現在自己的學習證書，請留意分享時的隱私。</p>
+          <div class="intention-options">
+            <label class="intention-option"><input type="radio" name="intention-q1" value="a" required><span class="intention-option__letter">A</span><span class="intention-option__label">經常或偶爾會有這種情況</span><span class="intention-option__check" aria-hidden="true">✓</span></label>
+            <label class="intention-option"><input type="radio" name="intention-q1" value="b"><span class="intention-option__letter">B</span><span class="intention-option__label">從來沒有，補給都很充裕</span><span class="intention-option__check" aria-hidden="true">✓</span></label>
+            <label class="intention-option"><input type="radio" name="intention-q1" value="c"><span class="intention-option__letter">C</span><span class="intention-option__label">不清楚 / 沒注意過</span><span class="intention-option__check" aria-hidden="true">✓</span></label>
+          </div>
+        </fieldset>
+        <fieldset class="intention-question" id="intention-q2">
+          <legend><span class="intention-question__index">Q2</span>你認為學校提供免費衛生棉，放置在哪裡最合適？</legend>
+          <p class="intention-question__note">依據你對方便取得、保護隱私等因素的判斷，選擇最符合你想法的方案。</p>
+          <div class="intention-options">
+            <label class="intention-option"><input type="radio" name="intention-q2" value="a" required><span class="intention-option__letter">A</span><span class="intention-option__label">各樓層廁所內部（包含女廁與無性別廁所）</span><span class="intention-option__check" aria-hidden="true">✓</span></label>
+            <label class="intention-option"><input type="radio" name="intention-q2" value="b"><span class="intention-option__letter">B</span><span class="intention-option__label">健康中心 / 保健室</span><span class="intention-option__check" aria-hidden="true">✓</span></label>
+            <label class="intention-option"><input type="radio" name="intention-q2" value="c"><span class="intention-option__letter">C</span><span class="intention-option__label">班級導師櫃或教官室</span><span class="intention-option__check" aria-hidden="true">✓</span></label>
+          </div>
+        </fieldset>
+        <div class="intention-footer"><p><span aria-hidden="true">✦</span> 此區純粹記錄你的個人意向，不上傳、不比較其他同學的答案。</p><p id="vote-status" class="form-feedback" role="status" aria-live="polite">請完成兩題選擇。</p></div>
+        <div class="stage-actions"><button class="button button-light" type="button" data-prev="3">返回第四關</button><button id="finish-game" class="button button-primary" type="submit" disabled>記錄我的意向・領取學習證書 ↗</button></div>
+      </form>
     </section>
 
     <section id="stage-certificate" class="game-stage" aria-labelledby="certificate-title" hidden>
-      <div class="completion-banner no-print"><span>✧ 任務完成</span><h2 id="certificate-title">恭喜完成經彩人生挑戰！</h2><p>這張證書記錄了你的角色試算、三項思辨回答與班級投票參與狀態。</p><div class="completion-actions"><button id="print-certificate" class="button button-primary" type="button">列印／另存 PDF 證書</button><button id="back-to-vote" class="button button-light" type="button">查看投票關卡</button></div></div>
+      <div class="completion-banner no-print"><span>✧ 任務完成</span><h2 id="certificate-title">恭喜完成經彩人生挑戰！</h2><p>這張證書記錄了你的角色試算、三項思辨回答與兩項個人意向選擇。</p><div class="completion-actions"><button id="print-certificate" class="button button-primary" type="button">列印／另存 PDF 證書</button><button id="back-to-vote" class="button button-light" type="button">查看投票關卡</button></div></div>
       <article id="certificate" class="certificate">
         <div class="certificate-corner certificate-corner--tl"></div><div class="certificate-corner certificate-corner--br"></div>
-        <div class="certificate-top"><div class="certificate-mark">✿</div><div class="certificate-caption">JINGCAI YOUTH · LEARNING JOURNEY</div><h2>經彩人生・月經平權挑戰</h2><h3>闖關學習證書</h3><p>透過成本試算、議題思辨與班級討論，留下專屬的學習紀錄</p></div>
+        <div class="certificate-top"><div class="certificate-mark">✿</div><div class="certificate-caption">JINGCAI YOUTH · LEARNING JOURNEY</div><h2>經彩人生・月經平權挑戰</h2><h3>闖關學習證書</h3><p>透過成本試算、議題思辨與個人意向選擇，留下專屬的學習紀錄</p></div>
         <div class="certificate-meta"><span>學生：<strong id="cert-student">自主學習者</strong></span><span>日期：<strong id="cert-date"></strong></span></div>
         <div class="certificate-hero"><div><span>我的角色｜<strong id="cert-role"></strong></span><small>生涯總開銷試算</small><strong id="cert-cost">NT$ 0</strong></div><span class="cert-approved">✓ 解密成功</span></div>
         <div class="certificate-equivalents"><h4>生活消費換算</h4><p id="cert-equivalent-line"></p></div>
         <div class="certificate-answers"><h4>我的議題思辨紀錄</h4><div class="cert-answer"><strong>① 月經貧窮與生理用品課稅</strong><p id="cert-poverty"></p></div><div class="cert-answer"><strong>② 校園免費生理用品與隱私</strong><p id="cert-location"></p></div><div class="cert-answer"><strong>③ 生理假與實質平等</strong><p id="cert-leave"></p></div></div>
-        <div class="certificate-footer"><div><strong>✓ 已完成課堂兩題投票</strong><small id="cert-vote-method">由學生自行確認完成</small></div><div class="certificate-seal">經彩<br>PASS</div></div>
+        <div class="certificate-intentions">
+          <h4>第五關｜我的個人意向紀錄</h4>
+          <div class="cert-intention"><strong>① 生理用品使用經驗</strong><p id="cert-vote-q1"></p></div>
+          <div class="cert-intention"><strong>② 校園免費衛生棉設置位置</strong><p id="cert-vote-q2"></p></div>
+        </div>
+        <div class="certificate-footer"><div><strong>✓ 已完成兩項個人意向選擇</strong><small>本紀錄僅保存在目前瀏覽器，沒有上傳或產生班級統計。</small></div><div class="certificate-seal">經彩<br>PASS</div></div>
         <p class="certificate-credit">經彩青春數位輔助學習教材開發團隊設計</p>
       </article>
     </section>

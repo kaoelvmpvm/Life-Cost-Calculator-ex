@@ -48,6 +48,27 @@ node --test tests/*.test.cjs
 
 固定圖片由 `index.html` 載入；隨機角色透過 `js/roles.js` 的 `image` 欄位及 `js/game.js` 顯示，重新整理後仍跟隨原本角色。PNG 透明部分保留，手機與桌面使用對應版型，證書列印前會確認圖片載入。沒有修改任何試算公式或闖關條件。
 
+## 工程架構與品質檢查
+
+此教材使用 GitHub Pages + 原生 JavaScript，不要求學生登入、安裝 App 或使用後端服務。
+
+- `js/cost-model.js`：純函式成本計算，所有公式和通關金額維持原樣。
+- `js/roles.js`：五位角色與情境資料。
+- `js/flow.js`：可單獨測試的關卡狀態守衛；禁止繞過尚未完成的關卡，並在恢復異常進度時安全降級。
+- `js/game.js`：角色呈現、分組表單、局部錯誤提示、學習紀錄、證書列印；錯誤提示保留在確認通關之後。
+- `css/game.css` / `css/refinement.css`：CSS Cascade Layers 的 `legacy` 基礎層與 `ui` 介面層；後者覆蓋前者時不再需要大量 `!important`。
+- 手機版可於試算器展開角色故事；表單草稿與思辨答案在同一分頁重整後可繼續使用。
+- 重新開始使用鍵盤可操作的原生 `dialog`，關卡切換會將焦點移到新標題，輸入格式錯誤附帶欄位層級訊息。
+- 偵測瀏覽器儲存失敗時會顯示提醒；`sessionStorage` 並不等於跨裝置或長期備份。
+
+### 自動測試
+
+`node --test tests/*.test.cjs` 檢查公式、角色設定、圖片對應及流程守衛。
+
+GitHub Actions 的 **Browser E2E** 以 Chromium / Playwright 執行完整通關、設定範圍、草稿恢復、重新開始及手機互動測試。亦可在本機安裝 `@playwright/test@1.56.1` 並啟動連接埠 4173 的靜態伺服器測試。
+
+目前圖片仍保留原始 PNG 以避免影響已上架畫面；圖片轉檔與實際印表機輸出仍可再進一步驗證。
+
 ## GitHub Pages
 
 如尚未啟用，開啟儲存庫 **Settings → Pages → Deploy from a branch → main → /(root) → Save**。

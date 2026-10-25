@@ -325,7 +325,6 @@ textarea:focus{box-shadow:0 0 0 3px rgba(38,116,100,.10)}
  .artwork-certificate-mark{width:52px;height:52px;margin:0 auto 3px;object-fit:contain}
  .certificate-seal.artwork-certificate-seal{height:58px;width:58px;flex-basis:58px;object-fit:contain}
  .artwork-cover{animation:none!important}
- .certificate-seal.media-placeholder>span{font-size:8px!important}
  .certificate{border:3px double #9fbcb0!important;box-shadow:none!important}
  .certificate-footer{padding-top:7px;margin-top:5px}
  .certificate-outlook{font-size:9pt}

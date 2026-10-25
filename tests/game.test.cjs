@@ -32,35 +32,41 @@ test("原有預設公式未變更",()=>{
   assert.equal(result.totalLifetimeCost,312816);
   assert.equal(result.totalPadsLifetime,13680);
 });
-test("五關引擎、題目、證書與自我確認備援均存在",()=>{
+test("第五關純本地意向選擇與證書紀錄，保留原教材兩題六選項",()=>{
   const html=fs.readFileSync("index.html","utf8");
   const game=fs.readFileSync("js/game.js","utf8");
   for(const id of ["stage-mission","stage-insight","stage-policy","stage-vote","stage-certificate",
-     "answer-poverty","answer-location","answer-leave","vote-frame","vote-q1-check",
-     "vote-q2-check","certificate","print-certificate","password-form","student-label"]){
+     "answer-poverty","answer-location","answer-leave","intention-form","intention-q1","intention-q2",
+     "cert-vote-q1","cert-vote-q2","certificate","print-certificate","password-form","student-label"]){
     assert.ok(html.includes('id="'+id+'"'),id);
   }
-  for(const t of ["刮鬍刀與衛生紙也是日常用品","若你是校長，你會把免費衛生棉放在校園的哪裡",
-    "給予特定群體合理的特別考量","Google","另存 PDF"]) assert.ok(html.includes(t),t);
-  assert.ok(game.includes("matchingFields(values)"));
-  assert.ok(game.includes("CostModel.calculate(values).totalLifetimeCost"));
-  assert.ok(game.includes("verifiedVote"));
-  assert.ok(game.includes("manualVote"));
+  for(const t of [
+    "刮鬍刀與衛生紙也是日常用品",
+    "若你是校長，你會把免費衛生棉放在校園的哪裡",
+    "給予特定群體合理的特別考量",
+    "你或你身邊的同學，曾有過「因為衛生棉不夠/省錢而減少更換頻率」的經驗嗎？",
+    "經常或偶爾會有這種情況","從來沒有，補給都很充裕","不清楚 / 沒注意過",
+    "你認為學校提供免費衛生棉，放置在哪裡最合適？",
+    "各樓層廁所內部（包含女廁與無性別廁所）","健康中心 / 保健室","班級導師櫃或教官室",
+    "另存 PDF"
+  ]) assert.ok(html.includes(t),t);
+  for(const question of ["q1","q2"]){
+    const pattern=new RegExp('name="intention-'+question+'" value="([abc])"','g');
+    const radios=[...html.matchAll(pattern)].map(m=>m[1]);
+    assert.deepEqual(radios,["a","b","c"],question);
+  }
+  for(const t of ["matchingFields(values)","CostModel.calculate(values).totalLifetimeCost",
+    "state.intentions","selectedIntentionText","sessionStorage"]) assert.ok(game.includes(t),t);
   assert.doesNotThrow(()=>new Function(game));
   assert.equal((html.match(/<section\b/g)||[]).length,(html.match(/<\/section>/g)||[]).length);
 });
-test("Apps Script 雙題完成訊號只來自伺服器回應後",()=>{
-  const backend=fs.readFileSync("apps-script/Code.gs","utf8");
-  const ui=fs.readFileSync("apps-script/VoteApp.html","utf8");
-  assert.doesNotThrow(()=>new Function(backend));
-  const js=ui.match(/<script>([\s\S]*?)<\/script>/i)?.[1];
-  assert.ok(js);
-  assert.doesNotThrow(()=>new Function(js.replace('<?!= JSON.stringify(bridgeNonce) ?>','""')));
-  assert.ok(ui.includes("reportCompletionFromServerState"));
-  assert.ok(ui.includes("JINGCAI_CLOUD_VOTE_COMPLETE"));
-  assert.ok(ui.includes("state.voted[\"1\"]")&&ui.includes("state.voted[\"2\"]"));
-  assert.ok(backend.includes("HtmlService.createTemplateFromFile('VoteApp')"));
-  assert.ok(backend.includes("19p_AsOe6_ndC1jEPjnk_hERdGXCE3Ft0g7UePBIZXig"));
+test("第五關不引入 iframe、Google 服務、全班統計或外部網路",()=>{
+  const html=fs.readFileSync("index.html","utf8");
+  const game=fs.readFileSync("js/game.js","utf8");
+  assert.doesNotMatch(html,/<iframe\b/i);
+  assert.doesNotMatch(html,/js\/config\.js|Google 雲端投票|全班票數/i);
+  assert.doesNotMatch(game,/google\.script|postMessage|onCloudMessage|LIFE_COST_CLOUD_VOTE_URL|voteFrame/);
+  assert.ok(html.includes("已完成兩項個人意向選擇"));
 });
 test("提供 A4 列印樣式及手機版",()=>{
   const css=fs.readFileSync("css/game.css","utf8");

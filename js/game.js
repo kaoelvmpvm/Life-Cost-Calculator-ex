@@ -10,7 +10,7 @@
   const fields = JingcaiRoles.fields;
   const extras = JingcaiRoles.extras;
   const emptyAnswers = {poverty:"",location:"",leave:""};
-  const allowedStages = [1,2,3,4,5];
+  const allowedStages = JingcaiFlow.validStages;
   let state = null;
   let noticeTimeout=null;
   const roleById = id => roleBook.find(x=>x.id===id);
@@ -48,7 +48,8 @@
         completed: Boolean(raw.completed), successfulConfig: Boolean(raw.successfulConfig),
         draft:raw.draft && typeof raw.draft==="object" ? raw.draft : null
       };
-      if(normalized.stage===5 && (!normalized.completed || !normalized.intentions.q1 || !normalized.intentions.q2)) normalized.stage=4;
+      normalized.stage=JingcaiFlow.recoverStage(normalized);
+      normalized.maxStage=Math.max(normalized.stage,normalized.maxStage);
       return normalized;
     } catch { return null; }
   }
@@ -283,7 +284,7 @@
     $("cert-feedback-q2").textContent=JingcaiFeedback.get("q2",state.intentions.q2);
   }
   function advance(to){
-    if(!state||!allowedStages.includes(to))return;
+    if(!state||!JingcaiFlow.canEnter(state,to))return;
     state.stage=to;state.maxStage=Math.max(state.maxStage,to);
     save();renderStage();
   }

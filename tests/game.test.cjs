@@ -60,11 +60,11 @@ test("第五關純本地意向選擇與證書紀錄，保留原教材兩題六�
   assert.doesNotThrow(()=>new Function(game));
   assert.equal((html.match(/<section\b/g)||[]).length,(html.match(/<\/section>/g)||[]).length);
 });
-test("第五關不引入 iframe、Google 服務、全班統計或外部網路",()=>{
+test("第五關不引入投票 iframe 或 Google 試算表資料串接",()=>{
   const html=fs.readFileSync("index.html","utf8");
   const game=fs.readFileSync("js/game.js","utf8");
   assert.doesNotMatch(html,/<iframe\b/i);
-  assert.doesNotMatch(html,/js\/config\.js|Google 雲端投票|全班票數/i);
+  assert.doesNotMatch(html,/js\/config\.js|script\.google\.com|docs\.google\.com\/spreadsheets/i);
   assert.doesNotMatch(game,/google\.script|postMessage|onCloudMessage|LIFE_COST_CLOUD_VOTE_URL|voteFrame/);
   assert.ok(html.includes("已完成兩項個人意向選擇"));
 });

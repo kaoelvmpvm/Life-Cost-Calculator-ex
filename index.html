@@ -20,9 +20,10 @@
 <div class="site-shell">
 <header class="topbar no-print">
   <div class="brand"><img class="brand-mark artwork-logo" data-image-slot="logo" src="./images/logo.png" alt="經彩人生教材標誌" width="1254" height="1254" decoding="async"><div><strong>經彩人生</strong><small>月經平權挑戰・高中篇</small></div></div>
-  <div class="top-actions"><span id="status-label" class="status-label">探索任務尚未開始</span><button id="reset-game" class="quiet-button" type="button" hidden>重新開始</button></div>
+  <div class="top-actions"><span id="save-status" class="save-status" role="status" aria-live="polite" hidden></span><span id="status-label" class="status-label">探索任務尚未開始</span><button id="reset-game" class="quiet-button" type="button" hidden>重新開始</button></div>
 </header>
 <main id="game-main" class="main-content">
+  <div id="app-notice" class="app-notice no-print" role="status" aria-live="polite" hidden></div>
   <section id="intro" class="intro-stage">
     <div class="intro-art">
       <img class="artwork-cover" data-image-slot="cover" src="./images/cover.png" alt="兩位學生攜帶計算器與筆記本，一同探索經期與生活成本的手繪封面插畫" width="1448" height="1086" fetchpriority="high" decoding="async">
@@ -72,6 +73,10 @@
           </div>
         </aside>
         <div class="calculator-panel">
+          <details id="mobile-story" class="mobile-story no-print">
+            <summary><span>查看角色情境</span><span aria-hidden="true">⌄</span></summary>
+            <div><strong id="mobile-story-name"></strong><p id="mobile-story-text"></p></div>
+          </details>
           <div class="section-topline"><h3>生理歷程與開銷設定</h3><span>SET PARAMETERS</span></div>
           <div id="scenario-fields" class="field-grid"></div>
           <div class="extra-heading"><h4>隱形與延伸開銷</h4><span>每月勾選項目</span></div>
@@ -82,7 +87,7 @@
           </div>
           <form id="password-form" class="password-card">
             <div><span class="eyebrow">PASSWORD TO CONTINUE</span><h4>輸入生涯總金額，解鎖下一關</h4><p>只需輸入整數，不必輸入「NT$」與逗號。</p></div>
-            <div class="password-row"><input id="password-input" type="text" inputmode="numeric" autocomplete="off" placeholder="請輸入 6 位數金額" aria-label="生涯總金額密碼"><button class="button button-primary" type="submit">確認通關</button></div>
+            <div class="password-row"><input id="password-input" type="text" inputmode="numeric" autocomplete="off" placeholder="請輸入 6 位數金額" aria-label="生涯總金額密碼" aria-describedby="mission-feedback"><button class="button button-primary" type="submit">確認通關</button></div>
             <p id="mission-feedback" class="form-feedback" role="status" aria-live="polite"></p>
           </form>
         </div>
@@ -165,6 +170,17 @@
   </div>
 </main>
 <footer class="page-footer no-print"><span>經彩青春數位輔助學習教材開發團隊設計</span><span>生涯成本為特定條件下的情境估算，不代表所有人的實際支出。</span></footer>
+  <dialog id="app-confirm" class="app-dialog no-print" aria-labelledby="app-confirm-title" aria-describedby="app-confirm-message">
+    <div class="app-dialog__body">
+      <span class="app-dialog__eyebrow">確認操作</span>
+      <h2 id="app-confirm-title">重新開始學習？</h2>
+      <p id="app-confirm-message">此操作將清除這個分頁的闖關進度與思辨紀錄。</p>
+      <div class="app-dialog__actions">
+        <button id="dialog-cancel" class="button button-light" type="button">返回學習</button>
+        <button id="dialog-accept" class="button button-primary" type="button">確定重新開始</button>
+      </div>
+    </div>
+  </dialog>
 </div>
 </body>
 </html>

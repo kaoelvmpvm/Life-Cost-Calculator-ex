@@ -198,7 +198,7 @@
   }
   function onCloudMessage(event) {
     // Apps Script HtmlService may be served from script.googleusercontent.com.
-    if(!/^https:\/\/(?:script\.google\.com|script\.googleusercontent\.com)$/.test(event.origin))return;
+    if(!/^https:\/\/(?:script\.google\.com|(?:[a-z0-9-]+\.)*googleusercontent\.com)$/.test(event.origin))return;
     const data=event.data;
     if(!data||data.type!=="JINGCAI_CLOUD_VOTE_COMPLETE"||data.version!==1)return;
     if(!voteBridgeNonce||data.nonce!==voteBridgeNonce)return;

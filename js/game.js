@@ -61,23 +61,9 @@
     $("character-story").textContent=role.story;
     $("character-tag").textContent=role.tag;
     const visual=document.querySelector(".character-visual");
-    visual.style.background="linear-gradient(145deg,"+role.colors[1]+",#f9e4e9)";
-    $("character-portrait").style.filter="drop-shadow(0 6px 10px "+role.colors[0]+"28)";
-    const clues=$("character-clues");
-    clues.replaceChildren();
-    const clueData=[
-      ["生理歷程",role.settings.startAge+" 歲初潮／"+role.settings.endAge+" 歲停經"],
-      ["經期與使用量","每次 "+role.settings.periodDays+" 天／每日 "+role.settings.padsPerDay+" 片"],
-      ["衛生棉價格","日用 NT$"+role.settings.dayPadPrice+"／夜用 NT$"+role.settings.nightPadPrice],
-      ["夜用比例",role.settings.nightRatio+"%（其餘為日用）"],
-      ["每月延伸項目",extras.filter(x=>role.settings[x.id]).map(x=>x.label).join("、")||"本次均不列入"]
-    ];
-    clueData.forEach(([label,value])=>{
-      const row=document.createElement("div");row.className="clue-row";
-      const n=document.createElement("span");n.textContent=label;
-      const v=document.createElement("strong");v.textContent=value;
-      row.append(n,v);clues.append(row);
-    });
+    // Images are intentionally deferred; each role's placeholder uses a distinct tint.
+    visual.style.setProperty("--character-tint",role.colors[1]);
+    visual.style.setProperty("--character-accent",role.colors[0]);
   }
 
   function makeCalculator() {
@@ -130,9 +116,8 @@
       $("calculation-display").hidden=false;
       $("calculated-sum").textContent="NT$ "+money(result.totalLifetimeCost);
       $("calculation-detail").textContent="估計月經 "+result.totalCycles+" 次，單月 NT$ "+money(result.totalMonthlyCost)+"。";
-      const count=matchingFields(values).length;
-      if(count)showFeedback("mission-feedback","目前有 "+count+" 個設定與角色檔案不同；請核對左側線索。","error");
-      else showFeedback("mission-feedback","設定已與角色檔案相符！請輸入生涯總金額作為通關密碼。","ok");
+      // Calculation does not give away whether the student has matched the character story.
+      showFeedback("mission-feedback","");
       return result;
     }catch(error){$("calculation-display").hidden=true;showFeedback("mission-feedback",error.message,"error");return null;}
   }
@@ -141,13 +126,15 @@
     try {
       const values=formValues();
       const mismatches=matchingFields(values);
-      if(mismatches.length){showFeedback("mission-feedback","還有 "+mismatches.length+" 個設定未符合角色檔案，請重新核對後再試。","error");return;}
+      if(mismatches.length){
+        showFeedback("mission-feedback","還有 "+mismatches.length+" 個設定與故事內容不一致。請重新閱讀情境，再調整數值與勾選項目。","error");
+        return;
+      }
       const guess=$("password-input").value.replace(/[NT$，,\s]/gi,"");
       if(!/^\d{1,10}$/.test(guess))throw new Error("請輸入不含貨幣符號的正整數金額。");
       const expected=CostModel.calculate(values).totalLifetimeCost;
       if(Number(guess)!==expected){showFeedback("mission-feedback","密碼還不正確。請重新計算總金額，注意輸入的是「生涯」而非單月開銷。","error");return;}
       state.successfulConfig=true;
-      showFeedback("mission-feedback","解密成功！", "ok");
       advance(2);
     }catch(error){showFeedback("mission-feedback",error.message,"error");}
   }
@@ -170,7 +157,7 @@
   }
   function checkAnswers(keys){
     const incomplete=keys.some(k=>!String(state.answers[k]||"").trim());
-    if(incomplete){window.alert("請先完成本關的思辨回答。這些文字只會被保存，不會進行對錯評分。");return false;}
+    if(incomplete){window.alert("請先寫下你的想法，再繼續這段故事。");return false;}
     return true;
   }
   // These answers are personal intentions, not an anonymous class poll.
@@ -194,6 +181,10 @@
       document.querySelectorAll('input[name="intention-'+key+'"]').forEach(radio=>{
         radio.checked=(radio.value===value);
       });
+      const response=$("intention-feedback-"+key);
+      const message=JingcaiFeedback.get(key,value);
+      response.textContent=message;
+      response.hidden=!message;
     }
     const complete=Boolean(state.intentions.q1&&state.intentions.q2);
     $("finish-game").disabled=!complete;
@@ -220,6 +211,8 @@
     $("cert-leave").textContent=state.answers.leave;
     $("cert-vote-q1").textContent=selectedIntentionText("q1");
     $("cert-vote-q2").textContent=selectedIntentionText("q2");
+    $("cert-feedback-q1").textContent=JingcaiFeedback.get("q1",state.intentions.q1);
+    $("cert-feedback-q2").textContent=JingcaiFeedback.get("q2",state.intentions.q2);
   }
   function advance(to){
     if(!state||!allowedStages.includes(to))return;
@@ -247,7 +240,7 @@
   }
   function begin(){
     const role=chooseRole();
-    state={version:1,roleId:role.id,student:$("student-label").value.trim().slice(0,30),
+    state={version:2,roleId:role.id,student:$("student-label").value.trim().slice(0,30),
       stage:1,maxStage:1,answers:{...emptyAnswers},intentions:{q1:"",q2:""},
       completed:false,successfulConfig:false};
     renderRole();makeCalculator();bindAnswers();renderInsight();save();renderStage();
